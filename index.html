@@ -348,14 +348,21 @@ function speak(text, cb){
       var voices = window.speechSynthesis.getVoices();
       for(var i=0;i<voices.length;i++){ if(voices[i].lang.indexOf('la')===0){ utter.voice=voices[i]; break; } }
     }catch(e){}
-    var called = false;
-    utter.onend = function(){ if(!called){ called=true; _speaking=false; if(cb) setTimeout(cb,50); } };
-    utter.onerror = function(){ if(!called){ called=true; _speaking=false; if(cb) setTimeout(cb,80); } };
-    // Only cancel if something is currently playing (prevents iOS queue buildup)
+    // Global speak ID prevents stale onend from cancelled utterances (iOS fix)
+    window._speakId = (window._speakId||0) + 1;
+    var myId = window._speakId;
+    utter.onend = function(){
+      if(myId !== window._speakId){ _speaking=false; return; }  // stale callback
+      _speaking=false; if(cb) setTimeout(cb,50);
+    };
+    utter.onerror = function(){
+      if(myId !== window._speakId){ _speaking=false; return; }  // stale callback
+      _speaking=false; if(cb) setTimeout(cb,80);
+    };
+    // Only cancel if something is currently playing
     var needCancel = _speaking;
     if(needCancel){ try{ window.speechSynthesis.cancel(); }catch(e){} }
-    _speaking = true;
-    // Small delay before speak helps iOS process cancel properly
+    _speaking = true
     var d = needCancel ? 80 : 20;
     setTimeout(function(){ try{ window.speechSynthesis.speak(utter); }catch(e){ _speaking=false; if(cb) setTimeout(cb,80); } }, d);
   }catch(e){ _speaking=false; if(cb) setTimeout(cb,80); }
