@@ -351,10 +351,13 @@ function speak(text, cb){
     var called = false;
     utter.onend = function(){ if(!called){ called=true; _speaking=false; if(cb) setTimeout(cb,50); } };
     utter.onerror = function(){ if(!called){ called=true; _speaking=false; if(cb) setTimeout(cb,80); } };
-    // Cancel previous speech, then speak after brief delay (iOS fix)
-    try{ window.speechSynthesis.cancel(); }catch(e){}
+    // Only cancel if something is currently playing (prevents iOS queue buildup)
+    var needCancel = _speaking;
+    if(needCancel){ try{ window.speechSynthesis.cancel(); }catch(e){} }
     _speaking = true;
-    setTimeout(function(){ try{ window.speechSynthesis.speak(utter); }catch(e){ _speaking=false; if(cb) setTimeout(cb,80); } }, 60);
+    // Small delay before speak helps iOS process cancel properly
+    var d = needCancel ? 80 : 20;
+    setTimeout(function(){ try{ window.speechSynthesis.speak(utter); }catch(e){ _speaking=false; if(cb) setTimeout(cb,80); } }, d);
   }catch(e){ _speaking=false; if(cb) setTimeout(cb,80); }
 }
 
@@ -1088,14 +1091,16 @@ function speakAllApplied(){
 }
 function speakChain(t){
   if(!t||!t.length) return;
-  try{ window.speechSynthesis.cancel(); }catch(e){}
+  window._speakChainId = (window._speakChainId||0) + 1;
+  var myId = window._speakChainId;
   var idx = 0;
   function next(){
+    if(myId !== window._speakChainId) return;
     if(idx < t.length){
-      speak(t[idx], function(){ idx++; setTimeout(next, 120); });
+      speak(t[idx], function(){ idx++; if(myId === window._speakChainId) setTimeout(next, 120); });
     }
   }
-  setTimeout(next, 50);
+  setTimeout(next, 40);
 }
 
 // ============================================================
