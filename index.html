@@ -1,0 +1,1179 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>拉丁语学习 · 秒秒的拉丁教室</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#f5f2ed;--card:#fff;--text:#2c2c2c;--text2:#6b6b6b;--accent:#7b2d26;--accent2:#a03d33;--gold:#b8860b;--border:#e0d8d0;--shadow:0 2px 12px rgba(0,0,0,.06);--rom-font:"Garamond","Palatino","Times New Roman","Noto Serif",serif;--sans:"Hiragino Sans","Yu Gothic",sans-serif}
+html{font-size:16px;scroll-behavior:smooth}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:90px}
+a{color:var(--accent);text-decoration:none}
+header{background:linear-gradient(135deg,#2c1810,#3d2a1a);color:#f5f0eb;padding:20px 16px 16px;position:sticky;top:0;z-index:100}
+header h1{font-family:var(--rom-font);font-size:1.3rem;letter-spacing:.05em}
+header .sub{font-size:.8rem;opacity:.7;margin-top:2px}
+header .progress-bar{height:4px;background:rgba(255,255,255,.15);border-radius:2px;margin-top:10px;overflow:hidden}
+header .progress-fill{height:100%;background:linear-gradient(90deg,var(--gold),#daa520);border-radius:2px;transition:width .5s}
+.tabs{display:flex;background:var(--card);border-bottom:1px solid var(--border);position:sticky;top:58px;z-index:99;flex-wrap:wrap;overflow-x:auto}
+.tab{flex-shrink:0;padding:12px 10px;text-align:center;font-size:.78rem;color:var(--text2);cursor:pointer;border-bottom:3px solid transparent;transition:.2s}
+.tab.active{color:var(--accent);border-color:var(--accent);font-weight:600}
+.tab:hover{background:rgba(123,45,38,.04)}
+main{padding:16px;max-width:720px;margin:0 auto}
+.section{display:none}.section.active{display:block}
+.section h2{font-family:var(--rom-font);font-size:1.15rem;margin-bottom:10px;color:var(--text)}
+.card{background:var(--card);border-radius:12px;padding:16px;margin-bottom:12px;box-shadow:var(--shadow);border:1px solid var(--border)}
+.today-card{text-align:center;padding:20px}
+.today-card .la{font-family:var(--rom-font);font-size:1.6rem;display:block;margin-bottom:4px;font-style:italic}
+.today-card .cn{font-size:1rem}
+.today-card .meta{font-size:.8rem;color:var(--text2);margin-top:8px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
+.stat-card{background:var(--card);border-radius:10px;padding:14px 8px;text-align:center;box-shadow:var(--shadow);border:1px solid var(--border)}
+.stat-card .num{font-size:1.5rem;font-weight:700;color:var(--accent)}
+.stat-card .label{font-size:.7rem;color:var(--text2);margin-top:2px}
+.jp{font-family:var(--rom-font);font-size:1.05rem;font-weight:500;font-style:italic}
+.cn{font-size:.9rem;color:var(--text2)}
+.reading{font-size:.85rem;color:#888}
+.chapter-item{padding:12px;cursor:pointer;border-bottom:1px solid #f0ece6;transition:.2s;display:flex;align-items:center;gap:10px}
+.chapter-item:hover{background:rgba(123,45,38,.04)}
+.chapter-item:last-child{border-bottom:none}
+.chapter-num{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem;flex-shrink:0}
+.chapter-num.done{background:#e8f5e9;color:#2e7d32}
+.chapter-num.current{background:#fff3e0;color:#e65100}
+.chapter-num.locked{background:#f5f5f5;color:#ccc}
+.chapter-info{flex:1}
+.chapter-info .title{font-size:.9rem}
+.chapter-info .sub{font-size:.75rem;color:var(--text2)}
+.btn{display:inline-block;padding:10px 24px;border:none;border-radius:8px;cursor:pointer;font-size:.9rem;font-weight:600;transition:.2s}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover{background:var(--accent2)}
+.btn-outline{background:transparent;border:2px solid var(--accent);color:var(--accent)}
+.btn-outline:hover{background:rgba(123,45,38,.06)}
+.btn-sm{padding:6px 14px;font-size:.8rem}
+.text-center{text-align:center}.mt-8{margin-top:8px}.mt-16{margin-top:16px}
+.flash-container{perspective:1000px;min-height:260px;margin-bottom:16px}
+.flash-card{position:relative;width:100%;min-height:260px;cursor:pointer;transition:transform .5s;transform-style:preserve-3d}
+.flash-card.flipped{transform:rotateY(180deg)}
+.flash-face{position:absolute;top:0;left:0;width:100%;min-height:260px;backface-visibility:hidden;background:var(--card);border-radius:14px;box-shadow:var(--shadow);border:1px solid var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px}
+.flash-front{background:linear-gradient(145deg,var(--card),#fefcf9)}
+.flash-back{transform:rotateY(180deg);background:linear-gradient(145deg,#fefcf9,var(--card))}
+.flash-face .la{font-family:var(--rom-font);font-size:2rem;margin-bottom:8px;font-style:italic}
+.flash-face .reading{font-size:1.1rem;color:#888;margin-bottom:8px}
+.flash-face .cn{font-size:1.1rem;color:var(--text2)}
+.flash-face .hint{font-size:.75rem;color:#bbb;margin-top:12px}
+.flash-controls{display:flex;gap:8px;justify-content:center}
+.flash-controls button{padding:10px 20px;border:none;border-radius:8px;cursor:pointer;font-size:.9rem;font-weight:600;transition:.2s}
+.btn-know{background:#e8f5e9;color:#2e7d32}.btn-know:hover{background:#c8e6c9}
+.btn-dunno{background:#fce4ec;color:#c62828}.btn-dunno:hover{background:#f8bbd0}
+.btn-skip{background:#f5f5f5;color:#999}.btn-skip:hover{background:#e0e0e0}
+.grammar-item{padding:12px;margin-bottom:8px;background:var(--card);border-radius:10px;border:1px solid var(--border)}
+.grammar-item .pattern{font-family:var(--rom-font);font-size:1rem;font-weight:600;color:var(--accent);margin-bottom:4px;font-style:italic}
+.grammar-item .explain{font-size:.85rem;color:var(--text2);margin-bottom:6px}
+.grammar-item .example{font-family:var(--rom-font);font-size:.9rem;color:var(--text);padding:8px;background:#f9f6f2;border-radius:6px;line-height:1.5;font-style:italic}
+.grammar-item .example-cn{font-size:.8rem;color:#888;margin-top:2px}
+.vocab-table{width:100%;border-collapse:collapse;font-size:.85rem}
+.vocab-table th{text-align:left;padding:8px 6px;border-bottom:2px solid var(--border);color:var(--text2);font-weight:600}
+.vocab-table td{padding:8px 6px;border-bottom:1px solid #f0ece6;vertical-align:middle}
+.vocab-table tr:last-child td{border-bottom:none}
+.vocab-table .la{font-family:var(--rom-font);font-style:italic}
+.basic-item{padding:10px 0;border-bottom:1px solid #f0ece6}
+.basic-item:last-child{border-bottom:none}
+.basic-item .la-line{font-family:var(--rom-font);font-size:.95rem;line-height:1.6;font-style:italic}
+.dialogue-item{display:flex;gap:10px;margin-bottom:8px;align-items:flex-start}
+.dialogue-item .speaker{min-width:50px;font-size:.75rem;color:var(--accent);font-weight:600;text-align:right;padding-top:2px}
+.dialogue-item .bubble{flex:1;padding:8px 12px;border-radius:8px;font-size:.88rem;line-height:1.5}
+.dialogue-item .bubble.la-bubble{background:#f5f0eb;border:1px solid #e0d8d0}
+.dialogue-item .bubble.cn-bubble{background:#fefcf9;border:1px solid #f0ece6;font-size:.8rem;color:var(--text2);border-top:none}
+.speaker-icon{background:none;border:none;font-size:1.1rem;cursor:pointer;opacity:.5;padding:0 2px;transition:.2s;vertical-align:middle}
+.speaker-icon:hover{opacity:1;transform:scale(1.15)}
+.speaker-icon.speaking{opacity:1;color:var(--accent)}
+.study-tabs{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.study-tabs .st{font-size:.8rem;padding:6px 14px;border-radius:20px;cursor:pointer;background:#f0ece6;color:var(--text2);transition:.2s;border:none}
+.study-tabs .st.active{background:var(--accent);color:#fff}
+.study-tabs .st:hover:not(.active){background:#e0d8d0}
+.study-pane{display:none}
+.study-pane.active{display:block}
+.listen-controls{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:12px 0}
+.playlist-item{padding:8px;margin-bottom:4px;border-radius:6px;cursor:pointer;display:flex;align-items:center;gap:8px;transition:.2s}
+.playlist-item:hover{background:#f5f0eb}
+.playlist-item.playing{background:#fff3e0;border-left:3px solid var(--gold)}
+.playlist-item .num{width:20px;font-size:.7rem;color:#bbb;text-align:center;flex-shrink:0}
+.playlist-item .text{flex:1;font-family:var(--rom-font);font-size:.85rem;font-style:italic}
+.playlist-item .cn2{font-size:.75rem;color:#999;margin-left:4px}
+.quiz-question{padding:16px;text-align:center}
+.quiz-question .la{font-family:var(--rom-font);font-size:1.4rem;font-style:italic}
+.quiz-answers{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:16px 0}
+.quiz-answers button{padding:12px;border:2px solid var(--border);border-radius:10px;background:var(--card);cursor:pointer;font-size:.9rem;transition:.2s;font-family:var(--sans)}
+.quiz-answers button:hover{border-color:var(--accent2)}
+.quiz-answers button.correct{border-color:#2e7d32;background:#e8f5e9}
+.quiz-answers button.wrong{border-color:#c62828;background:#fce4ec}
+.quiz-result{text-align:center;padding:12px;border-radius:8px;margin-top:8px;font-weight:600}
+.settings-group{margin-bottom:16px}
+.settings-group label{display:block;font-size:.85rem;color:var(--text2);margin-bottom:4px}
+.settings-group input,.settings-group select{width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;font-size:.9rem;font-family:var(--sans)}
+.settings-group input:focus,.settings-group select:focus{outline:none;border-color:var(--accent)}
+.timer-display{font-size:2.5rem;font-weight:300;text-align:center;font-family:var(--sans);margin:8px 0}
+.timer-controls{display:flex;gap:8px;justify-content:center}
+.streak-grid{display:flex;gap:3px;flex-wrap:wrap;justify-content:center;margin:8px 0}
+.streak-day{width:22px;height:22px;border-radius:4px;background:#f0ece6;font-size:.5rem;display:flex;align-items:center;justify-content:center;color:#ccc}
+.streak-day.done{background:var(--gold);color:#fff}
+.streak-day.today{box-shadow:0 0 0 2px var(--accent)}
+.notification{position:fixed;top:70px;right:16px;background:var(--card);border-radius:10px;padding:12px 16px;box-shadow:0 4px 20px rgba(0,0,0,.15);z-index:300;border-left:4px solid var(--gold);transform:translateX(120%);transition:transform .4s;max-width:300px}
+.notification.show{transform:translateX(0)}
+.decl-table{width:100%;border-collapse:collapse;margin:6px 0;font-size:.8rem}
+.decl-table td,.decl-table th{padding:4px 8px;border:1px solid var(--border);text-align:center}
+.decl-table th{background:#f5f0eb;font-weight:600;font-size:.75rem;color:var(--text2)}
+.decl-table .la{font-family:var(--rom-font);font-style:italic}
+@media(max-width:480px){.stats{grid-template-columns:repeat(3,1fr);gap:6px}.stat-card{padding:10px 4px}.stat-card .num{font-size:1.2rem}.quiz-answers{grid-template-columns:1fr}.tabs .tab{font-size:.7rem;padding:10px 6px}}
+</style>
+</head>
+<body>
+
+<header id="appHeader">
+  <div style="display:flex;justify-content:space-between;align-items:center">
+    <div>
+      <h1>🏛️ 拉丁语学习</h1>
+      <div class="sub">从零开始 · 两天一课 · <i>Veni, vidi, didici</i></div>
+    </div>
+    <div style="font-size:.75rem;opacity:.7" id="headerDate"></div>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+</header>
+
+<div class="tabs" id="tabBar">
+  <div class="tab active" data-tab="dashboard">📊</div>
+  <div class="tab" data-tab="chapters">📖</div>
+  <div class="tab" data-tab="study">📝</div>
+  <div class="tab" data-tab="listen">🎧</div>
+  <div class="tab" data-tab="flash">🃏</div>
+  <div class="tab" data-tab="quiz">✍️</div>
+  <div class="tab" data-tab="settings">⚙️</div>
+</div>
+
+<main id="app">
+
+<section class="section active" id="tab-dashboard">
+  <div class="card today-card">
+    <div style="font-size:.8rem;color:var(--text2);margin-bottom:4px">📅 今日学习</div>
+    <span class="la" id="todayChapterLA"></span>
+    <span class="cn" id="todayChapterCN"></span>
+    <div class="meta" id="todayMeta"></div>
+    <div class="flex flex-center gap-8 mt-8" style="justify-content:center">
+      <button class="btn btn-primary btn-sm" onclick="switchTab('study')">开始学习 →</button>
+      <button class="btn btn-outline btn-sm" onclick="switchTab('listen')">🎧 听课文</button>
+    </div>
+  </div>
+  <div class="stats">
+    <div class="stat-card"><div class="num" id="statDone">0</div><div class="label">已学完</div></div>
+    <div class="stat-card"><div class="num" id="statVocab">0</div><div class="label">词汇量</div></div>
+    <div class="stat-card"><div class="num" id="statStreak">0</div><div class="label">连续天数</div></div>
+  </div>
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+      <span style="font-weight:600;font-size:.9rem">🔥 学习日历</span>
+      <span style="font-size:.75rem;color:var(--text2)" id="streakLabel">最近14天</span>
+    </div>
+    <div class="streak-grid" id="streakGrid"></div>
+  </div>
+  <div class="card">
+    <div style="font-weight:600;font-size:.9rem;margin-bottom:6px">📈 学习进度</div>
+    <div style="font-size:.8rem;color:var(--text2)" id="progressText"></div>
+    <div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:8px" id="progressDots"></div>
+  </div>
+  <div class="card">
+    <div style="font-weight:600;font-size:.9rem;margin-bottom:6px">⌛ 番茄钟 · <i>Tempus fugit</i></div>
+    <div class="timer-display" id="timerDisplay">25:00</div>
+    <div class="timer-controls">
+      <button class="btn btn-outline btn-sm" onclick="startTimer()">▶</button>
+      <button class="btn btn-outline btn-sm" onclick="pauseTimer()">⏸</button>
+      <button class="btn btn-outline btn-sm" onclick="resetTimer()">↺</button>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="tab-chapters">
+  <h2>📖 课程目录</h2>
+  <div style="font-size:.8rem;color:var(--text2);margin-bottom:12px">拉丁语入门 · 全20课</div>
+  <div class="card" id="chapterList"></div>
+</section>
+
+<section class="section" id="tab-study">
+  <h2 id="studyChapterTitle">📝 Lectio I</h2>
+  <div class="study-tabs" id="studyTabs">
+    <button class="st active" onclick="switchStudyTab('vocab',this)">📖 词汇</button>
+    <button class="st" onclick="switchStudyTab('dialogue',this)">💬 课文</button>
+    <button class="st" onclick="switchStudyTab('grammar',this)">📚 语法</button>
+  </div>
+  <div class="study-pane active" id="pane-vocab">
+    <div class="card"><div style="font-weight:600;margin-bottom:8px">📖 词汇 <span style="font-weight:400;font-size:.8rem;color:var(--text2)" id="vocabCount"></span></div>
+    <div style="max-height:400px;overflow-y:auto"><table class="vocab-table"><tbody id="vocabTableBody"></tbody></table></div></div>
+  </div>
+  <div class="study-pane" id="pane-dialogue">
+    <div class="card">
+      <div style="font-weight:600;margin-bottom:8px;display:flex;align-items:center;gap:8px">💬 基本句子 <button class="speaker-icon" onclick="speakAllBasics()" title="朗读全部">🔊</button></div>
+      <div id="basicSentences"></div>
+      <div style="font-weight:600;margin:16px 0 8px;display:flex;align-items:center;gap:8px">📖 阅读短文 <button class="speaker-icon" onclick="speakAllApplied()" title="朗读全部">🔊</button></div>
+      <div id="appliedReading"></div>
+    </div>
+  </div>
+  <div class="study-pane" id="pane-grammar">
+    <div class="card" id="grammarCard"><div id="grammarList"></div></div>
+  </div>
+  <div class="text-center mt-16" style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+    <button class="btn btn-outline btn-sm" onclick="markChapterDone()">✅ 标记已学完</button>
+    <button class="btn btn-primary btn-sm" onclick="switchTab('listen')">🎧 听课文</button>
+    <button class="btn btn-primary btn-sm" onclick="switchTab('quiz')">✍️ 测验</button>
+  </div>
+</section>
+
+<section class="section" id="tab-listen">
+  <h2>🎧 听力模式 <i>Audi et repete</i></h2>
+  <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+    <select id="listenChapter" onchange="loadListening()" style="flex:1;padding:8px;border:1px solid var(--border);border-radius:8px;font-size:.85rem"></select>
+  </div>
+  <div class="card">
+    <div style="font-weight:600;margin-bottom:8px">播放列表</div>
+    <div class="listen-controls">
+      <button class="btn btn-outline btn-sm" onclick="playListenAll()">▶ 全部播放</button>
+      <button class="btn btn-outline btn-sm" onclick="stopListen()">⏹ 停止</button>
+      <button class="btn btn-outline btn-sm" onclick="toggleListenRepeat()" id="repeatBtn">🔁 单曲循环</button>
+    </div>
+    <div id="listenPlaylist"></div>
+  </div>
+</section>
+
+<section class="section" id="tab-flash">
+  <h2>🃏 单词卡片</h2>
+  <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+    <select id="flashChapter" onchange="startFlash()" style="flex:1;padding:8px;border:1px solid var(--border);border-radius:8px;font-size:.85rem"></select>
+    <select id="flashMode" onchange="startFlash()" style="flex:1;padding:8px;border:1px solid var(--border);border-radius:8px;font-size:.85rem">
+      <option value="la2cn">拉丁语→中文</option>
+      <option value="cn2la">中文→拉丁语</option>
+      <option value="mix">混合</option>
+    </select>
+  </div>
+  <div id="flashContainer"></div>
+  <div style="text-align:center;font-size:.8rem;color:var(--text2);margin-bottom:8px" id="flashProgress">0 / 0</div>
+  <div class="flash-controls">
+    <button class="btn-dunno" onclick="flashAnswer(0)">✗ 不认识</button>
+    <button class="btn-know" onclick="flashAnswer(1)">✓ 认识</button>
+    <button class="btn-skip" onclick="flashAnswer(-1)">跳过</button>
+  </div>
+</section>
+
+<section class="section" id="tab-quiz">
+  <h2>✍️ 小测验</h2>
+  <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+    <select id="quizChapter" onchange="startQuiz()" style="flex:1;padding:8px;border:1px solid var(--border);border-radius:8px;font-size:.85rem"></select>
+    <select id="quizType" onchange="startQuiz()" style="flex:1;padding:8px;border:1px solid var(--border);border-radius:8px;font-size:.85rem">
+      <option value="meaning">选中文</option>
+      <option value="latin">选拉丁语</option>
+    </select>
+  </div>
+  <div class="card" id="quizContainer">
+    <div class="quiz-question">
+      <div style="font-size:.8rem;color:var(--text2);margin-bottom:8px" id="quizQNum">第 1 题</div>
+      <div class="la" id="quizQuestion"></div>
+      <button class="speaker-icon" onclick="speakQuiz()" title="听发音" style="font-size:1.3rem">🔊</button>
+    </div>
+    <div class="quiz-answers" id="quizAnswers"></div>
+    <div class="quiz-result" id="quizResult"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">
+      <span style="font-size:.8rem;color:var(--text2)" id="quizScore">✅ 0/0</span>
+      <button class="btn btn-sm btn-primary" onclick="startQuiz()" style="display:none" id="quizRestart">重新开始</button>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="tab-settings">
+  <h2>⚙️ 设置</h2>
+  <div class="card">
+    <div class="settings-group">
+      <label>开始学习的日期</label>
+      <input type="date" id="startDate" onchange="saveSettings();refreshAll()">
+    </div>
+    <div class="settings-group">
+      <label>每课学习天数</label>
+      <select id="daysPerLesson" onchange="saveSettings();refreshAll()">
+        <option value="1">每天一课（快）</option>
+        <option value="2" selected>两天一课（推荐）</option>
+        <option value="3">三天一课（悠闲）</option>
+      </select>
+    </div>
+    <div class="settings-group">
+      <label>番茄钟时长（分钟）</label>
+      <select id="timerDuration" onchange="saveSettings()">
+        <option value="15">15</option><option value="25" selected>25</option>
+        <option value="30">30</option><option value="45">45</option><option value="60">60</option>
+      </select>
+    </div>
+    <div style="margin-top:12px"><button class="btn btn-outline btn-sm" onclick="resetAll()">🗑 清除所有数据</button></div>
+  </div>
+  <div class="card">
+    <div style="font-weight:600;font-size:.9rem;margin-bottom:4px">💡 <i>Consilium</i> 使用建议</div>
+    <div style="font-size:.8rem;color:var(--text2);line-height:1.6">
+      <p>① 每天先背单词 → 读课文（点🔊听发音）→ 学语法</p>
+      <p>② 听力页全文朗读，跟读练习 <i>(lege et repete!)</i></p>
+      <p>③ 卡片背单词，测验来检验</p>
+      <p>④ <i>Repetitio est mater studiorum</i> — 重复是学习之母</p>
+    </div>
+  </div>
+</section>
+</main>
+
+<div class="notification" id="notification"></div>
+
+<script>
+// ============================================================
+// SPEECH — Latin uses lang='la'
+// ============================================================
+function speak(text, cb){
+  if(!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'la'; u.rate = 0.8; u.pitch = 0.9; u.volume = 1;
+  const voices = speechSynthesis.getVoices();
+  // Prefer any Latin voice, else use default
+  const lv = voices.find(v => v.lang.startsWith('la'));
+  if(lv) u.voice = lv;
+  u.onend = ()=>{ if(cb) cb(); };
+  speechSynthesis.speak(u);
+}
+
+// ============================================================
+// DATA — Latin for Beginners: 20 Lessons
+// ============================================================
+const COURSE_DATA = [
+  { // 1
+    title:'Lectio I — Alphabetum et Sum', titleCN:'字母与动词"是"',
+    basics:[
+      {who:'',la:'Salvē!',cn:'你好！'},
+      {who:'',la:'Quid est nōmen tibi?',cn:'你叫什么名字？'},
+      {who:'',la:'Mihi nōmen est Mārcus.',cn:'我叫马库斯。'},
+      {who:'',la:'Ego sum discipulus. Tū es magister.',cn:'我是学生。你是老师。'},
+      {who:'',la:'Valē!',cn:'再见！'},
+    ],
+    applied:{title:'Prīma Colloquia',lines:[
+      {who:'A:',la:'Salvē, amīca! Ego sum Līvia.',cn:'你好，朋友！我是莉维亚。'},
+      {who:'B:',la:'Salvē, Līvia! Ego sum Mārcus. Quid est nōmen tibi?',cn:'你好，莉维亚！我是马库斯。你叫什么名字？'},
+      {who:'A:',la:'Nōmen mihi est Līvia. Tū es discipulus?',cn:'我叫莉维亚。你是学生吗？'},
+      {who:'B:',la:'Ita, sum discipulus. Et tū?',cn:'是的，我是学生。你呢？'},
+      {who:'A:',la:'Ego quoque sum discipula. Valē!',cn:'我也是学生。再见！'},
+      {who:'B:',la:'Valē!',cn:'再见！'},
+    ]},
+    vocab:[
+      ['salvē','你好/早安'],['valē','再见'],
+      ['ego sum','我是'],['tū es','你是'],
+      ['est','他/她/它是'],['nōmen','名字'],
+      ['discipulus','男学生'],['discipula','女学生'],
+      ['magister','男老师'],['magistra','女老师'],
+      ['amīcus','朋友（男）'],['amīca','朋友（女）'],
+      ['ita','是的'],['nōn','不/不是'],
+      ['quoque','也'],['et','和/而且'],
+      ['quid','什么'],['tibi','对你（与你格）'],
+      ['mihi','对我（与我格）'],['mihi nōmen est','我叫……'],
+    ],
+    grammar:[
+      {p:'Verbum ESSE — 现在时陈述式',e:'Esse（是）是最基本的动词。按人称变化：',ex:'EGO sum = 我是\nTŪ es = 你是\nIS/EA/ID est = 他/她/它是\nNŌS sumus = 我们是\nVŌS estis = 你们是\nEĪ/EAE/EA sunt = 他们是'},
+      {p:'疑问句与否定',e:'拉丁语疑问句常在句尾加 -ne。否定用 nōn。',ex:'Esne discipulus?\n→ 你是学生吗？\nNōn sum magister.\n→ 我不是老师。'},
+      {p:'呼格 — 称呼用语',e:'Salvē + 呼格（与主格相同）',ex:'Salvē, amīca!\n→ 你好，朋友！\nValē, discipule!\n→ 再见，学生！'},
+      {p:'发音基础',e:'拉丁语元音分长短。C总是发/k/，V发/w/后来变为/v/。',ex:'Caesar = /kae.sar/ （不是"西泽"）\nVīta = /wiː.ta/ "生命"\nRōma = /roː.ma/ "罗马"'},
+    ],
+  },
+  { // 2
+    title:'Lectio II — Prīma Declīnātiō', titleCN:'第一变格法',
+    basics:[
+      {who:'',la:'Puella est in vīllā.',cn:'女孩在乡间别墅里。'},
+      {who:'',la:'Rōma est urbs clāra.',cn:'罗马是著名的城市。'},
+      {who:'',la:'Fortūna est dea.',cn:'命运女神是一位女神。'},
+      {who:'',la:'In scholā est magistra.',cn:'在学校里有一位女老师。'},
+    ],
+    applied:{title:'Vīlla Rōmāna',lines:[
+      {who:'',la:'Vīlla Rōmāna est magna. In vīllā est ātrium. In ātriō est fōns. Puellae in hortō ambulant. Rosae et violae sunt pulchrae. Vīta in vīllā est bona.',cn:'罗马别墅很大。别墅里有一个中庭。中庭里有一个喷泉。女孩们在花园里散步。玫瑰和紫罗兰很美丽。别墅里的生活很好。'},
+    ]},
+    vocab:[
+      ['puella, -ae','女孩（f.）'],['dea, -ae','女神（f.）'],
+      ['vīlla, -ae','乡间别墅（f.）'],['schola, -ae','学校（f.）'],
+      ['hortus, -ī','花园（m.）'],['rosa, -ae','玫瑰（f.）'],
+      ['viola, -ae','紫罗兰（f.）'],['fōns, fontis','喷泉（m.）'],
+      ['ātrium, -ī','中庭（n.）'],['urbs, urbis','城市（f.）'],
+      ['Rōma, -ae','罗马（f.）'],['vīta, -ae','生命/生活（f.）'],
+      ['clārus, -a, -um','著名的'],['magister, -trī','老师（m.）'],
+      ['magistra, -ae','女老师（f.）'],['ambulō, -āre','散步'],
+      ['bonus, -a, -um','好的'],['pulcher, -chra, -chrum','美丽的'],
+      ['magnus, -a, -um','大的'],['in（+abl）','在……里面'],
+    ],
+    grammar:[
+      {p:'第一变格法（女性名词）',e:'以 -a 结尾的名词（大部分女性）的变格：',ex:'主格: puellA (一位) / puellAE (多位)\n属格: puellAE / puellĀRUM\n与格: puellAE / puellĪS\n宾格: puellAM / puellĀS\n夺格: puellĀ / puellĪS\n呼格: puellA / puellAE'},
+      {p:'介词 in + 夺格',e:'in + 夺格（ablative）表示"在……里"',ex:'In vīllā.\n→ 在别墅里。\nIn scholā.\n→ 在学校里。\nIn hortō.\n→ 在花园里。（注意hortus第二变格）'},
+      {p:'动词现在时（第一变位）',e:'第一变位动词（-āre）的现在时变化：',ex:'ambulŌ 我散步\nambulĀS 你散步\nambulAT 他散步\nambulĀMUS 我们散步\nambulĀTIS 你们散步\nambulANT 他们散步'},
+    ],
+  },
+  { // 3
+    title:'Lectio III — Secunda Declīnātiō (M) et Coniugātiō II', titleCN:'第二变格法（阳性）与第二变位',
+    basics:[
+      {who:'',la:'Dominus in agrō labōrat.',cn:'主人在田里劳作。'},
+      {who:'',la:'Servus est in vīllā.',cn:'奴隶在别墅里。'},
+      {who:'',la:'Amīcus meus est bonus.',cn:'我的朋友很好。'},
+      {who:'',la:'Puerī in hortō currunt.',cn:'男孩们在花园里跑。'},
+    ],
+    applied:{title:'Familia Rōmāna',lines:[
+      {who:'',la:'Dominus est vir bonus. In vīllā cum familiā habitat. Fīlius eius est puer parvus. Fīlia eīus est puella parva. Servī in agrīs labōrant. Dominus servōs videt et monet. Vita in agrī est dūra.',cn:'主人是个好男人。他和家人住在别墅里。他的儿子是个小男孩。他的女儿是个小女孩。奴隶们在田里劳作。主人看见奴隶们并告诫他们。田里的生活是艰辛的。'},
+    ]},
+    vocab:[
+      ['dominus, -ī','主人（m.）'],['servus, -ī','奴隶（m.）'],
+      ['ager, agrī','田地（m.）'],['vir, virī','男人/丈夫（m.）'],
+      ['puer, puerī','男孩（m.）'],['fīlius, -ī','儿子（m.）'],
+      ['fīlia, -ae','女儿（f.）'],['amīcus, -ī','朋友（m.）'],
+      ['populus, -ī','人民（m.）'],['familia, -ae','家庭（f.）'],
+      ['labōrō, -āre','工作/劳动'],['videō, -ēre','看见'],
+      ['moneō, -ēre','告诫/提醒'],['habeō, -ēre','有/拥有'],
+      ['dūrus, -a, -um','坚硬的/艰难的'],['parvus, -a, -um','小的'],
+      ['curro, -ere','跑'],['cum（+abl）','和……一起'],
+      ['habito, -āre','居住'],['meus, -a, -um','我的'],
+    ],
+    grammar:[
+      {p:'第二变格法（阳性）',e:'以 -us / -er 结尾的阳性名词：',ex:'主格: dominUS / dominĪ\n属格: dominĪ / dominŌRUM\n与格: dominŌ / dominĪS\n宾格: dominUM / dominŌS\n夺格: dominŌ / dominĪS\n（puer/ager 型的夺格同样为 -ō）'},
+      {p:'第二变位动词（-ēre）',e:'第二变位动词现在时：',ex:'videŌ / videS / videT\nvidēMUS / vidēTIS / videNT\n'策':'moneŌ同样变化'},
+      {p:'中性名词（第二变格）',e:'以 -um 结尾的中性名词，主宾格相同（复数 -a）',ex:'bellUM（战争）/ bellA\ndonUM（礼物）/ donA\nverbUM（词）/ verbA'},
+      {p:'所有格（属格）表示所属',e:'用属格表示"……的"',ex:'Fīlius dominī\n→ 主人的儿子\nAmīcus meī puerī\n→ 我的男孩的朋友'},
+    ],
+  },
+  { // 4
+    title:'Lectio IV — Dēclīnātiō Neutra et Coniugātiō III', titleCN:'中性名词与第三变位',
+    basics:[
+      {who:'',la:'Bellum est malum.',cn:'战争是坏的。'},
+      {who:'',la:'Dōnum est magnum.',cn:'礼物是大的。'},
+      {who:'',la:'Verba magistrī sunt bona.',cn:'老师的话是好的。'},
+      {who:'',la:'Puer dōnum dat.',cn:'男孩给礼物。'},
+    ],
+    applied:{title:'Dōnum Amīcōrum',lines:[
+      {who:'',la:'Mārcus et Līvia sunt amīcī. Mārcus dōnum Līviae dat. Dōnum est parva rosa pulchra. Līvia dōnum accipit et gaudet. "Grātiās tibi agō, amīce!" Līvia dicit. Mārcus respondet: "Vale!"',cn:'马库斯和莉维亚是朋友。马库斯给莉维亚一个礼物。礼物是一朵美丽的小玫瑰。莉维亚接受了礼物并很高兴。"谢谢你，朋友！"莉维亚说。马库斯回答："再见！"'},
+    ]},
+    vocab:[
+      ['bellum, -ī','战争（n.）'],['dōnum, -ī','礼物（n.）'],
+      ['verbum, -ī','单词/话语（n.）'],['vīnum, -ī','葡萄酒（n.）'],
+      ['templum, -ī','神庙（n.）'],['caelum, -ī','天空（n.）'],
+      ['argentum, -ī','银子/钱（n.）'],['gaudeō, -ēre','高兴'],
+      ['dō, dare','给'],['accipiō, -ere','接收/接受'],
+      ['dīcō, -ere','说'],['respondeō, -ēre','回答'],
+      ['grātiās agō','谢谢（字面：表达感谢）'],['malus, -a, -um','坏的/邪恶的'],
+      ['cum（+abl）','和……一起'],['nunc','现在'],
+      ['et','和/也'],['sed','但是'],
+    ],
+    grammar:[
+      {p:'中性名词第二变格',e:'中性词的主格和宾格相同。复数主宾格是 -a：',ex:'bellum (主格/宾格单数)\nbella (主格/宾格复数) \nbellī (属格单数) · bellōrum (属格复数)'},
+      {p:'第三变位动词（-ere）',e:'第三变位是"辅音变位"，元音在变化中改变：',ex:'dīcŌ / dīcIS / dīcIT\ndīcIMUS / dīcITIS / dīcUNT\n注意 e → i 的变化：accipiŌ / accipIS / accipIT'},
+      {p:'与格表示间接宾语',e:'某人"给"的对象用与格（dative）',ex:'Mārcus dōnum Līviae dat.\n→ 马库斯给莉维亚礼物。\n（Līviae = Līvia的与格）'},
+      {p:'Accipiō vs Dō',e:'接收（accipiō）与给予（dō）是一对反义词',ex:'Līvia dōnum accipit.\n→ 莉维亚接收礼物。\nMārcus dōnum dat.\n→ 马库斯给出礼物。'},
+    ],
+  },
+  { // 5
+    title:'Lectio V — Adiectīva Prīmae et Secundae', titleCN:'第一第二变格形容词',
+    basics:[
+      {who:'',la:'Vir bonus est amīcus fidēlis.',cn:'好男人是忠诚的朋友。'},
+      {who:'',la:'Puella parva est pulchra et bona.',cn:'小女孩美丽又善良。'},
+      {who:'',la:'Templum antīquum est magnum.',cn:'古老的神庙很大。'},
+      {who:'',la:'Discipulī bonī verba magistrī audiunt.',cn:'好学生们听老师的话。'},
+    ],
+    applied:{title:'Vīta Bona',lines:[
+      {who:'',la:'Vīta bona est vīta pulchra. Virī bonī et fēminae bonae sunt amīcī bonī. In hortō pulchrō sunt rosae et violae. Templa antīqua sunt magna in urbe clārā. Puerī parvī in hortō currunt et rīsū bonō gaudent. Nōn omnia sunt bona, sed spēs est dōnum deōrum.',cn:'好生活是美丽的生活。好男人和好女人是好朋友。在美丽的花园里有玫瑰和紫罗兰。古老的神庙在著名的城市里很大。小男孩们在花园里跑着，以开心的笑声欢乐。并非一切皆好，但希望是众神的礼物。'},
+    ]},
+    vocab:[
+      ['bonus, -a, -um','好的'],['malus, -a, -um','坏的'],
+      ['pulcher, -chra, -chrum','美丽的'],['magnus, -a, -um','大的'],
+      ['parvus, -a, -um','小的'],['fidēlis, -e','忠诚的'],
+      ['antīquus, -a, -um','古老的'],['clārus, -a, -um','著名的'],
+      ['novus, -a, -um','新的'],['omnis, -e','所有的/每个'],
+      ['spēs, speī','希望（f.）'],['deus, -ī','神（m.）'],
+      ['audiō, -īre','听'],['rīdeō, -ēre','笑'],
+      ['fēmina, -ae','女人（f.）'],['gaudium, -ī','欢乐（n.）'],
+    ],
+    grammar:[
+      {p:'形容词与名词一致',e:'拉丁语形容词必须在性、数、格上与所修饰名词一致',ex:'vir bonus (masc.) · puella bona (fem.) · templum bonum (neut.)\n"好男人 / 好女孩 / 好神庙"'},
+      {p:'第一/第二变格形容词变格',e:'bonus 的完整变格（三个性）：',ex:'M: -US / -Ī / -Ō / -UM / -Ō\nF: -A / -AE / -AE / -AM / -Ā\nN: -UM / -Ī / -Ō / -UM / -Ō'},
+      {p:'Pulcher 型形容词',e:'pulcher 在阳性主格单数时保留 -er，其他形式变 -chr-',ex:'pulCHER (m.sg.nom.)\npulCHRA (f.sg.nom.)\npulCHRUM (n.sg.nom.)\npulCHRĪ (m.pl.gen.)'},
+      {p:'第三变位 -iō 动词',e:'audiō（第四变位 -īre）的变化：',ex:'audiŌ / audiS / audiT\naudīMUS / audīTIS / audiUNT'},
+    ],
+  },
+  { // 6
+    title:'Lectio VI — Tertia Dēclīnātiō', titleCN:'第三变格法',
+    basics:[
+      {who:'',la:'Rēx est dux populī.',cn:'国王是人民的领袖。'},
+      {who:'',la:'Pāx et amor sunt in rēgnō.',cn:'和平与爱在王国里。'},
+      {who:'',la:'Homō mortālis est.',cn:'人终有一死。'},
+      {who:'',la:'Mors ducem et rēgem vocat.',cn:'死亡召唤领袖和国王。'},
+    ],
+    applied:{title:'Colloquium de Rēgnō',lines:[
+      {who:'A:',la:'Quis est rēx tuus?',cn:'你的国王是谁？'},
+      {who:'B:',la:'Rēx noster est vir magnae virtūtis. Multōs annōs rēgnum rēxit.',cn:'我们的国王是个大德之人。他统治王国多年了。'},
+      {who:'A:',la:'Estne pāx in rēgnō?',cn:'王国有和平吗？'},
+      {who:'B:',la:'Pāx et lēx in rēgnō sunt, sed bellum cum hostibus est.',cn:'王国有和平与法律，但和敌人有战争。'},
+      {who:'A:',la:'Populus amat rēgem?',cn:'人民爱戴国王吗？'},
+      {who:'B:',la:'Ita, populus rēgem amat, nam amor populī est magna fortūna.',cn:'是的，人民爱国王，因为人民的爱是巨大的福气。'},
+    ]},
+    vocab:[
+      ['rēx, rēgis','国王（m.）'],['dux, ducis','领袖/将军（m.）'],
+      ['lēx, lēgis','法律（f.）'],['pāx, pācis','和平（f.）'],
+      ['amor, amōris','爱（m.）'],['mors, mortis','死亡（f.）'],
+      ['homō, hominis','人（m.）'],['rēgnum, -ī','王国/统治（n.）'],
+      ['hostis, hostis','敌人（m./f.）'],['virtūs, virtūtis','美德/勇气（f.）'],
+      ['annus, -ī','年（m.）'],['nōmen, nōminis','名字（n.）'],
+      ['vocō, -āre','召唤/叫'],['amō, -āre','爱/喜欢'],
+      ['rēgō, -ere','统治'],['mortālis, -e','必死的'],
+      ['nam','因为'],['multus, -a, -um','许多的'],
+      ['tuus, -a, -um','你的'],['noster, -tra, -trum','我们的'],
+    ],
+    grammar:[
+      {p:'第三变格法概览',e:'第三变格是最大的变格群，以辅音结尾的词干为特征：',ex:'主格: rēx / rēgēs\n属格: rēgis / rēgum\n与格: rēgī / rēgibus\n宾格: rēgem / rēgēs\n夺格: rēge / rēgibus\n（注意主格单数通常是变形的！）'},
+      {p:'属格单数确定词干',e:'学拉丁名词必须记住属格单数。词干=属格去掉结尾',ex:'rēx, rēgis → 词干 rēg-\namor, amōris → 词干 amōr-\nhomō, hominis → 词干 homin-'},
+      {p:'阳性 vs 阴性 vs 中性',e:'第三变格中不同的性有不同的宾格复数形式：',ex:'阳性/阴性宾格复数是 -ēs\n中性宾格复数（同主格）是 -a\n例：omnis (m/f) → omnĪS / omnĒS\n例：animal (n) → animalIA'},
+    ],
+  },
+  { // 7
+    title:'Lectio VII — Imperfectum', titleCN:'未完成过去时',
+    basics:[
+      {who:'',la:'Puerī in hortō ambulābant.',cn:'男孩们（过去）在花园里散步。'},
+      {who:'',la:'Magister discipulōs docēbat.',cn:'老师（那时）在教学生们。'},
+      {who:'',la:'Rōma erat urbs maxima.',cn:'罗马曾经是最大的城市。'},
+      {who:'',la:'Dum ambulābam, amīcum vidēbam.',cn:'当我散步时，我看见了朋友。'},
+    ],
+    applied:{title:'Memoria Puellae',lines:[
+      {who:'',la:'Cum puella parva essem, in vīllā magnā habitābam. In hortō pulchrō cum amīcīs currēbam. Rosa violaeque in hortō erant pulcherrimae. Magister bonus nōs docēbat. Vīta erat bona et facile. Nunc sōlum memoria est, sed gaudium manet.',cn:'当我还是小女孩时，我住在大别墅里。在美丽的花园里和朋友们（那时）跑着。玫瑰和紫罗兰在花园里是最美丽的。好老师教我们。生活曾经是美好而轻松的。现在只剩下记忆，但欢乐永存。'},
+    ]},
+    vocab:[
+      ['eram','我曾经是（sum的过去）'],['erās','你曾是'],
+      ['erat','他曾是'],['erāmus','我们曾是'],['erātis','你们曾是'],['erant','他们曾是'],
+      ['ambulābam','我（曾）在散步'],['currēbam','我（曾）在跑'],
+      ['docēbam','我（曾）在教'],['vidēbam','我（曾）在看'],
+      ['habēbam','我（曾）拥有'],['dum','当……时'],
+      ['memoria, -ae','记忆（f.）'],['maneō, -ēre','留下/保持'],
+      ['facilis, -e','容易的'],['maximus, -a, -um','最大的'],
+      ['sōlum','仅仅/只'],['pulcherrimus','最美丽的'],
+      ['cum','当（从句连词）'],
+    ],
+    grammar:[
+      {p:'未完成过去时（Imperfect）',e:'表示"过去正在进行或习惯性的动作"。标记是 -bā-：',ex:'amābam / amābās / amābat\namābāmus / amābātis / amābant\n（由动词词干 + -bā- + 人称结尾构成）'},
+      {p:'Esse 的未完成时',e:'唯一不规则的变化：',ex:'eram / erās / erat\nerāmus / erātis / erant'},
+      {p:'未完成时的用法',e:'① 过去正在做的事 ② 过去的习惯 ③ 背景描写',ex:'Dum Rōmae habitābam, linguam Latīnam discēbam.\n→ 当我住在罗马时，我在学拉丁语。\n（两个动作同时进行）'},
+      {p:'第三/第四变位的未完成',e:'第三变位元音变为 -ē-（而非 -ēbā-的简写）',ex:'dīcēbam (dicō → dicebam)\naudiēbam (audiō → audiēbam)\n（规则：词干 + -ēbā- + 人称结尾）'},
+    ],
+  },
+  { // 8
+    title:'Lectio VIII — Futūrum Tempus', titleCN:'将来时',
+    basics:[
+      {who:'',la:'CRās in scholam ambulābō.',cn:'明天我会走去学校。'},
+      {who:'',la:'Discipulī librum legent.',cn:'学生们将读书。'},
+      {who:'',la:'Magister nōbīs fābulam nārābit.',cn:'老师会给我们讲故事。'},
+      {who:'',la:'Rōma semper erit urbs clāra.',cn:'罗马将永远是著名的城市。'},
+    ],
+    applied:{title:'Spēs Futūrī',lines:[
+      {who:'A:',la:'Quid crās faciēs?',cn:'你明天做什么？'},
+      {who:'B:',la:'Ad scholam ambulābō et linguam Latīnam discam.',cn:'我会走去学校并学拉丁语。'},
+      {who:'A:',la:'Post scholam quid faciēs?',cn:'放学后做什么？'},
+      {who:'B:',la:'Ad hortum ibō et cum amīcīs ambulābō.',cn:'我会去花园和朋友散步。'},
+      {who:'A:',la:'Et vespere?',cn:'晚上呢？'},
+      {who:'B:',la:'Librum legam et deōrās bonus spērābō.',cn:'我会读书并对众神怀抱好的希望。'},
+      {who:'A:',la:'Bona fortūna tibi sit!',cn:'祝你好运！'},
+    ]},
+    vocab:[
+      ['crās','明天'],['post','之后'],
+      ['vesper, vesperis','晚上（m.）'],['hodie','今天'],
+      ['heri','昨天'],['semper','总是/永远'],
+      ['liber, librī','书（m.）'],['fābula, -ae','故事（f.）'],
+      ['legō, -ere','读'],['nārrō, -āre','讲述'],
+      ['spērō, -āre','希望'],['discō, -ere','学习（第三变位）'],
+      ['faciō, -ere','做/制作'],['eō, īre','去（第四变位）'],
+      ['ibo','我将要去'],['bibō, -ere','喝'],
+      ['spēs, speī','希望（f.）'],['līngua, -ae','语言（f.）'],
+      ['Latīnus, -a, -um','拉丁的'],
+    ],
+    grammar:[
+      {p:'第一/第二变位将来时',e:'将来时标记是 -b-（和未完成类似但不同）',ex:'ambulābŌ / ambulābIS / ambulābIT\nambulābIMUS / ambulābITIS / ambulābUNT\n发音：-bō / -bis / -bit / -bimus / -bitis / -bunt'},
+      {p:'第三/第四变位将来时',e:'第三第四变位用 -a- / -e- 将来标记：',ex:'dīcAM (我將說) / dīcĒS / dīcET\ndīcĒMUS / dīcĒTIS / dīcENT\naudiAM / audiĒS / audiET ...'},
+      {p:'Esse 的将来时',e:'同样不规则：',ex:'erŌ / erIS / erIT\nerIMUS / erITIS / erUNT'},
+      {p:'Eō, īre（去）的特殊变化',e:'eō 是第四变位的不规则动词：',ex:'现在：eō / īs / it / īmus / ītis / eunt\n将来：ībō / ībis / ībit / ībimus / ībitis / ībunt'},
+    ],
+  },
+  { // 9
+    title:'Lectio IX — Perfectum Tempus', titleCN:'完成时',
+    basics:[
+      {who:'',la:'Amīcōs meōs hodiē vīdī.',cn:'我今天看见了朋友们。'},
+      {who:'',la:'Librum bonum herī lēgī.',cn:'我昨天读了一本好书。'},
+      {who:'',la:'Bellum longum multōs interfēcit.',cn:'漫长的战争杀死了很多人。'},
+      {who:'',la:'Vēnī, vīdī, vīcī.',cn:'我来了，我看见了，我征服了。'},
+    ],
+    applied:{title:'Gāius Dīcit',lines:[
+      {who:'',la:'Herī ad Forum Rōmānum ambulāvī. Ibi multōs amīcōs vīdī. Cum eīs dē rē pūblicā et philosophiā locūtus sum. Post merīdiem ad templum deōrum ibam, ut dīs grātiās agerem. Sōl dēclīnāvit et nox vēnit. Tum domum revēnī. Nox erat tranquilla. Stellae splendēbant. Sōlītūdō erat pulchra.',cn:'昨天我走到了罗马广场。在那里我看见了许朋友们。和他们谈到了共和国和哲学。下午我去了众神的神庙向众神表达感谢。太阳落下，夜晚降临。然后我回到了家。夜晚很宁静。星星闪耀着。孤独是美丽的。'},
+    ]},
+    vocab:[
+      ['vēnī','我来了'],['vīdī','我看见了'],['vīcī','我征服了'],
+      ['vēnit','他来了（第三变位eō？veniō,venīre）'],['fēcī','我做了/制作了'],
+      ['dīxī','我说了'],['dēdī','我给了'],
+      ['locūtus sum','我发言了（dep.）'],['interficiō, -ere','杀死'],
+      ['longus, -a, -um','长的'],['Rōmānus, -a, -um','罗马的'],
+      ['Forum','罗马广场（n.）'],['dē（+abl）','关于/从'],
+      ['rēs pūblica','共和国'],['philosophia, -ae','哲学（f.）'],
+      ['post merīdiem','下午'],['stella, -ae','星星（f.）'],
+      ['splendeō, -ēre','闪耀'],['tranquillus, -a, -um','安宁的'],
+      ['nox, noctis','夜晚（f.）'],['sōl, sōlis','太阳（m.）'],
+    ],
+    grammar:[
+      {p:'完成时（Perfect）——概述',e:'完成时表示"已经做完"的动作，相当于英语的过去时/完成时。',ex:'amāvī 我爱过 / monuī 我告诫过\ndīxī 我说过 / audīvī 我听过\n完成时用特有的词干 + 人称结尾'},
+      {p:'完成时人称结尾',e:'所有动词的完成时都用同一套结尾：',ex:'-Ī (我) / -ISTĪ (你) / -IT (他)\n-IMUS (我们) / -ISTIS (你们) / -ĒRUNT (他们)\n例：amāvĪ / amāvISTĪ / amāvIT / amāvIMUS'},
+      {p:'完成时词干的四种形式',e:'① -v- 型：amō→amāvī; ② -u- 型：moneō→monuī\n③ 变词干：dīcō→dīxī; ④ 重叠：dō→dedī',ex:'amāre: amāvī (词干 amāv-)\nvidēre: vīdī (词干 vīd-)\nlegere: lēgī (词干 lēg-)\ncapere: cēpī (词干 cēp-)\nesse: fuī (词干 fu-)'},
+    ],
+  },
+  { // 10
+    title:'Lectio X — Plūsquamperfectum et Futūrum Perfectum', titleCN:'过去完成时与将来完成时',
+    basics:[
+      {who:'',la:'Antequam vēnistī, iam discesserat.',cn:'你来之前他已经离开了。'},
+      {who:'',la:'Cum librum lēgissem, domum revēnī.',cn:'当我读完书后，回到了家。'},
+      {who:'',la:'Crās hāc hōrā, iam ambulāverō.',cn:'明天的这个时候我已經走完了。'},
+      {who:'',la:'Sī hoc fēceris, bonus eris.',cn:'如果你做了这个，你会是好的。'},
+    ],
+    applied:{title:'Historia Līviae',lines:[
+      {who:'',la:'Līvia, quae in urbe antīquā habitāverat, multās historiās audīverat. Cum Mārcus ad eam vēnisset, fābulam dē bellō Trōiānō nārrāvit. "Herculēs multa monstra interfēcerat," dīxit Līvia. "Sī ad urbem revēneris, ego tibi plūra nārrābō." Tum risērunt et ambulāvērunt ad hortum.',cn:'曾在古城居住过的莉维亚听过很多故事。当马库斯来到她这里时，她讲述了特洛伊战争的故事。"赫拉克勒斯杀死过很多怪物，"莉维亚说。"如果你回到城裡来，我会告诉你更多。"然后他们笑了，走到了花园。'},
+    ]},
+    vocab:[
+      ['antequam','在……之前'],['iam','已经'],
+      ['postquam','在……之后'],['cum','当（完成时从句）'],
+      ['sī','如果'],['hōra, -ae','小时（f.）'],
+      ['discedō, -ere','离开/出发'],['reveniō, -īre','回来'],
+      ['faciō, -ere / fēcī','做/制作'],['legō, -ere / lēgī','读'],
+      ['herī','昨天'],['crās','明天'],
+      ['nuper','最近'],['olim','从前'],
+      ['plūs','更多'],['multus, -a, -um','许多的'],
+      ['historia, -ae','历史/故事（f.）'],
+      ['Trōiānus, -a, -um','特洛伊的'],['monstrum, -ī','怪物（n.）'],
+    ],
+    grammar:[
+      {p:'过去完成时（Pluperfect）',e:'表示"过去某时之前已经完成的动作"。词干+erā+结尾：',ex:'amāverAM / amāverĀS / amāverAT\namāverĀMUS / amāverĀTIS / amāverANT\n"我曾爱过/我当时已经爱了"'},
+      {p:'将来完成时（Future Perfect）',e:'表示"将来某时将会已经完成的动作"。词干+er+结尾：',ex:'amāverŌ / amāverIS / amāverIT\namāverIMUS / amāverITIS / amāverINT\n= "我将已经……"'},
+      {p:'Cum 从句 + 完成时',e:'cum + 完成时 = "当……之后/正在那时"',ex:'Cum vēnisset, eum vīdī.\n→ 当他来了之后，我见到了他。'},
+      {p:'条件句（简单将来）',e:'sī + 将来完成时 = 如果……将……',ex:'Sī librum lēgeris, sapientior eris.\n→ 如果你读了书，你会更有智慧。'},
+    ],
+  },
+  { // 11
+    title:'Lectio XI — Prōnōmina', titleCN:'代词',
+    basics:[
+      {who:'',la:'Egō tē amō.',cn:'我爱你。'},
+      {who:'',la:'Nōs nōbīs librum damus?',cn:'我们给我们自己书吗？'},
+      {who:'',la:'Tū ipsē hoc fēcistī.',cn:'你自己做了这个。'},
+      {who:'',la:'Egō eum videō, et ille mē videt.',cn:'我看见他，他也看见我。'},
+    ],
+    applied:{title:'Amor et Amīcitia',lines:[
+      {who:'A:',la:'Egō tē semper amābō. Tū mē amāsne?',cn:'我会永远爱你。你爱我吗？'},
+      {who:'B:',la:'Ita, egō tē amō. Tū es amīcus meus.',cn:'是的，我爱你。你是我的朋友。'},
+      {who:'A:',la:'Nōs inter nōs semper adiuvābimus.',cn:'我们会永远互相帮助。'},
+      {who:'B:',la:'Egō hoc prōmittō. Et tū?',cn:'我承诺这个。你呢？'},
+      {who:'A:',la:'Egō quoque. Valē, amīce!',cn:'我也是。再见，朋友！'},
+    ]},
+    vocab:[
+      ['egō','我'],['tū','你'],['nōs','我们'],['vōs','你们'],
+      ['is, ea, id','他/她/它'],['eī, eae, ea','他们/她们/它们'],
+      ['meus, -a, -um','我的'],['tuus, -a, -um','你的'],
+      ['suus, -a, -um','他/她/自己的'],['noster, -tra, -trum','我们的'],
+      ['vester, -tra, -trum','你们的'],['ipse, ipsa, ipsum','……自己/本身'],
+      ['sē','自己（宾格）'],['inter','在……之间'],
+      ['adiuvō, -āre','帮助'],['prōmittō, -ere','承诺'],
+      ['nunc','现在'],['semper','总是'],
+    ],
+    grammar:[
+      {p:'人称代词变格',e:'拉丁语人称代词有特殊的变格形式：',ex:'EGO: meī / mihi / mē / mē\nTŪ: tuī / tibi / tē / tē\nIS: eius / eī / eum / eō\nEA: eius / eī / eam / eā\nNŌS: nostrum / nōbīs / nōs / nōbīs'},
+      {p:'反身代词 se',e:'se 表示"自己"，只用于间接宾语/宾语',ex:'Videt sē in aquā.\n→ 他看见自己在水中。\nPuer sē lavat.\n→ 男孩给自己洗澡。'},
+      {p:'强调代词 ipse',e:'ipse = "……本身/亲自"，可附加在任何名词/代词后',ex:'Ego ipse hoc fēcī.\n→ 我自己做了这个。\nPuella ipsa vēnit.\n→ 女孩亲自来了。'},
+      {p:'所有格代词',e:'所有格（属格）表示"某人的"',ex:'Liber meus = 我的书\nAmīcus tuus = 你的朋友\n（注意所有格跟在名词后）'},
+    ],
+  },
+  { // 12
+    title:'Lectio XII — Hic et Ille', titleCN:'指示代词',
+    basics:[
+      {who:'',la:'Hic est amīcus meus.',cn:'这位是我的朋友。'},
+      {who:'',la:'Ille vir est magister bonus.',cn:'那位先生是位好老师。'},
+      {who:'',la:'Haec sunt verba sapientium.',cn:'这些是智者的言语。'},
+      {who:'',la:'Illud templum est antīquissimum.',cn:'那座神庙是最古老的。'},
+    ],
+    applied:{title:'In Forō Rōmānō',lines:[
+      {who:'A:',la:'Quid est illud aedificium?',cn:'那座建筑是什么？'},
+      {who:'B:',la:'Illud est templum Iovis. Hīc est senātus.',cn:'那是朱庇特的神庙。这边是元老院。'},
+      {who:'A:',la:'Quī sunt illī virī?',cn:'那些人是谁？'},
+      {who:'B:',la:'Illī sunt senātōrēs Rōmānī. Hōrum verba sunt magna.',cn:'那些是罗马元老。这些人的话很重要。'},
+      {who:'A:',la:'Pulchra est urbs Rōma! Hoc est mīrābile.',cn:'罗马城真美！这太神奇了。'},
+    ]},
+    vocab:[
+      ['hic, haec, hoc','这个（近指）'],['ille, illa, illud','那个（远指）'],
+      ['iste, ista, istud','那个（与你相关）'],['idem, eadem, idem','同样的'],
+      ['aedificium, -ī','建筑（n.）'],['templum, -ī','神庙（n.）'],
+      ['Iuppiter, Iovis','朱庇特（m.）'],['senātus, -ūs','元老院（m.）'],
+      ['senātor, -ōris','元老（m.）'],['sapiēns, sapientis','有智慧的（adj.）'],
+      ['antīquissimus','最古老的'],['mīrābilis, -e','令人惊叹的'],
+      ['verbum, -ī','词/话（n.）'],['populus, -ī','人民（m.）'],
+    ],
+    grammar:[
+      {p:'Hic 的完整变格',e:'近指"这个/这些"的性数格变化：',ex:'单数: HIC (m) / HAEC (f) / HOC (n)\n属格: HUIUS (m/f/n)\n与格: HUĪC (m/f/n)\n宾格: HUNC (m) / HANC (f) / HOC (n)\n夺格: HŌC (m/n) / HĀC (f)'},
+      {p:'Ille 的完整变格',e:'远指"那个/那些"的变化：',ex:'单数: ILLE (m) / ILLA (f) / ILLUD (n)\n属格: ILLĪUS\n与格: ILLĪ\n宾格: ILLUM / ILLAM / ILLUD\n夺格: ILLŌ / ILLĀ / ILLŌ'},
+      {p:'指示代词的用法',e:'hic = 靠近说话者；ille = 远离说话者',ex:'Hic est liber meus, ille est tuus.\n→ 这是我的书，那（本）是你的。\nHaec est fēmina quae mea amīca est.\n→ 这位是我的女朋友。'},
+    ],
+  },
+  { // 13
+    title:'Lectio XIII — Prōnōmen Relātīvum', titleCN:'关系代词',
+    basics:[
+      {who:'',la:'Vir quī hoc dīxit est amīcus.',cn:'说了这话的人是朋友。'},
+      {who:'',la:'Puella quam videō est Līvia.',cn:'我看见的女孩是莉维亚。'},
+      {who:'',la:'Urbs in quā habitō est Rōma.',cn:'我居住的城市是罗马。'},
+      {who:'',la:'Hī sunt librī quōs herī lēgī.',cn':'这些是我昨天读的书。'},
+    ],
+    applied:{title:'Dē Sapientiā',lines:[
+      {who:'A:',la:'Quis est vir cuius verba audiō?',cn:'我听到其话语的那个人是谁？'},
+      {who:'B:',la:'Ille est philosophus quī in scholā docet. Is est vir cuius sapientia est magna.',cn:'那位是学校里教书的哲学家。他是个智慧很大的人。'},
+      {who:'A:',la:'Quae sunt verba quae dīcit?',cn:'他说的那些话是什么？'},
+      {who:'B:',la:'Dīcit: "Vīta brevis est, sed ars longa." Quod est vērum.',cn:'他说："生命短暂，但艺术长久。"这是真的。'},
+    ]},
+    vocab:[
+      ['quī, quae, quod','关系代词：那（人/物）'],['cuius','……的（属格）'],
+      ['cui','对……（与格）'],['quem','把……（宾格m）'],
+      ['quam','把……（宾格f）'],['quō','在/用……（夺格）'],
+      ['philosophus, -ī','哲学家（m.）'],['sapientia, -ae','智慧（f.）'],
+      ['ars, artis','艺术/技艺（f.）'],['brevis, -e','短暂的'],
+      ['longus, -a, -um','长久的/长的'],['vērus, -a, -um','真实的'],
+      ['dīcit','他说'],['verbum, -ī','话语'],
+      ['doceō, -ēre','教'],['vēritās, vēritātis','真理（f.）'],
+    ],
+    grammar:[
+      {p:'关系代词 qui 的变格',e:'关系代词引导定语从句，指代前面的先行词：',ex:'单数: quĪ / quae / quod (主格)\ncuius / cuius / cuius (属格)\ncuī / cuī / cuī (与格)\nquem / quam / quod (宾格)\nquō / quā / quō (夺格)'},
+      {p:'关系代词的性数格',e:'关系代词的性和数来自先行词，格来自它在从句中的功能',ex:'Vir quĪ hoc dīxit … (qui 主格，已在从句中是主语)\n→ 说了这话的男人……\nPuella QUAM videō … (quam 宾格，是 video 的宾语)\n→ 我看到的女孩……'},
+      {p:'关系代词的复数',e:'复数和单数类似：',ex:'quĪ / quae / quae\nquōrum / quārum / quōrum\nquibus / quibus / quibus\nquōs / quās / quae\nquibus / quibus / quibus'},
+    ],
+  },
+  { // 14
+    title:'Lectio XIV — Vōx Passīva (Praesēns)', titleCN:'被动语态（现在时系统）',
+    basics:[
+      {who:'',la:'Līvia ab amīcīs amātur.',cn:'莉维亚被朋友们爱着。'},
+      {who:'',la:'Librī ā discipulīs leguntur.',cn:'书被学生们读。'},
+      {who:'',la:'Magister ab omnibus laudātur.',cn:'老师被所有人称赞。'},
+      {who:'',la:'Verba tua audiuntur.',cn:'你的话被听到了。'},
+    ],
+    applied:{title:'Iūstitia in Rēgnō',lines:[
+      {who:'',la:'Lēgēs in rēgnō ā rēge dantur. Populus ab lēgibus regitur. Iūstitia ab omnibus amātur. Sī quis lēgem frangit, ā iūdicibus pūnītur. Bonus rēx ā populō laudātur; malus rēx vituperātur. In rēgnō bonō, pāx servātur et iūstitia manet.',cn:'法律在王国里由国王制定。人民被法律统治。正义被所有人爱戴。如果有人违法，会被法官惩罚。好国王被人民称赞；坏国王被批评。在好王国里，和平被维护，正义永存。'},
+    ]},
+    vocab:[
+      ['amor, amāris, amātur','我被爱/你被爱/他被爱'],
+      ['amāmur, amāminī, amantur','我们/你们/他们被爱'],
+      ['legor, legeris, legitur','我被读……'],
+      ['laudō, -āre','称赞（主动）'],['laudor, laudāris','被称赞（被动）'],
+      ['pūniō, -īre','惩罚'],['vituperō, -āre','批评'],
+      ['servō, -āre','维持/保存'],['frangō, -ere','破坏/打碎'],
+      ['iūstitia, -ae','正义（f.）'],['iūdex, iūdicis','法官（m.）'],
+      ['rēgnum, -ī','王国（n.）'],['lēx, lēgis','法律（f.）'],
+      ['ab/ā（+abl）','被（施事者）'],['regō, -ere','统治'],
+    ],
+    grammar:[
+      {p:'被动语态现在时',e:'被动语态：主语"被"做某事。人称结尾变为被动：',ex:'主动结尾: -ō / -s / -t / -mus / -tis / -nt\n被动结尾: -or / -ris / -tur / -mur / -minī / -ntur\n例: amŌ (我爱) → amOR (我被爱) → amāRIS (你被爱)'},
+      {p:'各变位被动形式',e:'① amĀTUR / ② monĒTUR / ③ regITUR / ④ audĪTUR',ex:'amat → amātur (他被爱)\nvidet → vidētur (他被看见)\nregit → regitur (他被统治)\naudit → audītur (他被听到)'},
+      {p:'施事者 + ab/ā',e:'动作的执行者用 ab/ā + 夺格表示',ex:'Līvia ab amīcīs amātur.\n→ 莉维亚被朋友们爱着。\nLiber ā discipulō legitur.\n→ 书被学生读。\n（ā 用于辅音前，ab 用于元音前）'},
+    ],
+  },
+  { // 15
+    title:'Lectio XV — Vōx Passīva (Perfectum)', titleCN:'被动语态（完成时系统）',
+    basics:[
+      {who:'',la:'Rōma ā Rōmulō condita est.',cn:'罗马由罗慕路斯建立。'},
+      {who:'',la:'Bellum ā mīlitibus confectum est.',cn:'战争被士兵们结束了。'},
+      {who:'',la:'Librī ā discipulīs lēctī sunt.',cn:'书被学生们读了。'},
+      {who:'',la:'Urbs ā rēge dēfēnsa erat.',cn:'城市曾被国王保护。'},
+    ],
+    applied:{title:'Dē Bellō Troiānō',lines:[
+      {who:'',la:'Bellum Trōiānum ā Graecīs gestum est. Multī hērōēs in bellō occīsī sunt. Urbs Trōia ā Graecīs capta et dēlēta est. Post bellum, multī Rōmānī ab Aenēā, hērōe Trōiānō, orīginem dūcunt. Haec est fābula antīqua quae ā poetīs multīs nārrāta est.',cn:'特洛伊战争由希腊人进行。许多英雄在战争中被杀。特洛伊城被希腊人攻占和毁灭。战后，许多罗马人将被特洛伊英雄埃涅阿斯视为起源。这是被许多诗人讲述过的古老故事。'},
+    ]},
+    vocab:[
+      ['condō, -ere','建立'],['cōnficiō, -ere','完成/结束'],
+      ['dēfendō, -ere','保护/防守'],['dēleō, -ēre','毁灭'],
+      ['capiō, -ere / cēpī','抓住/攻占'],['occīdō, -ere / occīdī','杀死'],
+      ['gerō, -ere','进行/携带'],['dūcō, -ere','引导/带领'],
+      ['condita est','被建立（完成被动）'],['capta est','被攻占'],
+      ['lēctus est','被读'],['occīsī sunt','被杀（复数）'],
+      ['mīles, mīlitis','士兵（m.）'],['Graecus, -a, -um / Graecī','希腊的/希腊人'],
+      ['hērōs, hērōis','英雄（m.）'],['poēta, -ae','诗人（m.）'],
+      ['orīgō, -ginis','起源（f.）'],
+    ],
+    grammar:[
+      {p:'完成时被动语态',e:'完成时被动 = 过去分词（PPP）+ sum 的现在时：',ex:'amātUS sum (我被爱过)\namātUS es (你被爱过)\namātUS est (他被爱过)\namātĪ sumus (我们被爱过)\n分词要与主语性数一致！'},
+      {p:'过去分词（PPP）',e:'规则：词干 + -tus 或 -sus',ex:'amāre → amātUS (被爱了的)\nmonēre → monitUS (被提醒了的)\nregere → rēctUS (被统治了的)\naudīre → audītUS (被听到了的)'},
+      {p:'过去完成时被动',e:'过去完成时被动 = PPP + eram：',ex:'amātUS eram (我那时已经被爱了)\namātUS erās (你那时已经被爱了)\namātUS erat (他那时已经被爱了)'},
+      {p:'将来完成时被动',e:'将来完成时被动 = PPP + erō：',ex:'amātUS erō (我将会已经被爱了)\namātUS eris (你将会已经被爱了)\namātUS erit (他将会…)'},
+    ],
+  },
+  { // 16
+    title:'Lectio XVI — Īnfīnītīvus et Accūsātīvus cum Īnfīnītīvō', titleCN:'不定式与间接引语',
+    basics:[
+      {who:'',la:'Crēdō tē hunc librum lēgisse.',cn:'我相信你读了这本书。'},
+      {who:'',la:'Dīcit sē vēritātem scīre.',cn:'他说他知道真理。'},
+      {who:'',la:'Putō Rōmam urbem pulchram esse.',cn:'我认为罗马是座美丽的城市。'},
+      {who:'',la:'Spērō nōs vītūrōs esse.',cn:'我希望能活下去。'},
+    ],
+    applied:{title:'Philosophī Dīcunt',lines:[
+      {who:'',la:'Sōcratēs dīcit: "Vītam sine philosophiā esse nōn dignam." Plātō putat animam immortālem esse. Aristotelēs crēdit omnia in nātūrā causam habēre. Cicerō dīcit rem pūblicam sine bonīs virīs stāre nōn posse. Haec verba per saecula audīta sunt et nōbīs viam ad sapientiam mōnstrant.',cn:'苏格拉底说："没有哲学的生活不值得过。"柏拉图认为灵魂是不朽的。亚里士多德相信自然中一切都有原因。西塞罗说共和国没有好男人就无法站立。这些话被经历了几个世纪听到并向我们展示了通向智慧之路。'},
+    ]},
+    vocab:[
+      ['crēdō, -ere','相信（+dat）'],['putō, -āre','认为'],
+      ['spērō, -āre','希望'],['sciō, -īre','知道'],
+      ['possum, posse','能够（pot- + sum）'],['mōnstrō, -āre','展示/指示'],
+      ['stō, stāre','站立'],['animus, -ī','灵魂/精神（m.）'],
+      ['immortālis, -e','不朽的'],['dignus, -a, -um','值得的'],
+      ['vītūrus sum','我将要活（fut. inf.）'],['causa, -ae','原因（f.）'],
+      ['nātūra, -ae','自然（f.）'],['saeculum, -ī','世纪/世代（n.）'],
+      ['via, -ae','路（f.）'],['sine（+abl）','没有/无'],
+    ],
+    grammar:[
+      {p:'不定式（Infinitives）',e:'现在时不定式：-āre / -ēre / -ere / -īre',ex:'amĀRE (爱) / monĒRE (告诫) / regERE (统治) / audĪRE (听)\n完成时不定式：PPP + esse → amāvisse (爱过了)\n将来时不定式：PFA + esse → amātūrus esse (将要去爱)'},
+      {p:'Accusativus cum Infinitivo (AcI)',e:'间接引语结构：宾格主语 + 不定式。常用于表示"说/想/相信…"',ex:'Dīcit sē vēritātem scīre.\n→ 他说他知道真理。\n（sē 是主语的宾格，scīre 是不定式）\nPutō Rōmam esse pulchram.\n→ 我认为罗马是美丽的。\n（Rōmam 宾格主语，esse 不定式）'},
+      {p:'常用AcI动词',e:'dīcō (说) / putō (认为) / crēdō (相信) / sciō (知道) / spērō (希望)',
+      ex:'Crēdō eum amīcum bonum esse.\n→ 我相信他是好朋友。\nSpērō tē fēlīcem esse.\n→ 我希望你幸福。'},
+    ],
+  },
+  { // 17
+    title:'Lectio XVII — Participia', titleCN:'分词',
+    basics:[
+      {who:'',la:'Puer ambulāns in hortō rosās videt.',cn:'在花园里走着的男孩看见了玫瑰。'},
+      {who:'',la:'Librum lēctum magistrō dōnāvī.',cn:'我把读过的书送给了老师。'},
+      {who:'',la:'Puella ambulātūra discēdit.',cn:'快要出发的女孩离开了。'},
+      {who:'',la:'Vīta bene ācta est beāta.',cn:'过得好的人生是幸福的。'},
+    ],
+    applied:{title:'Mīles Fortis',lines:[
+      {who:'',la:'Mīles fortis, in proeliō pugnāns, hostēs superāvit. Vulnerātus, tamen pugnāre perrēxit. Dux, haec facta vidēns, mīlitem laudāvit. "Tū es vērus hērōs," dīxit. Mīles, verba ducis audiēns, rīsit. "Ego prō patriā pugnō, prō honōre, nōn prō laudibus," respondit. Post bellum, ā populō acceptus, beātus vīxit.',cn:'勇敢的士兵在战斗中战斗，战胜了敌人。受了伤，但继续战斗。将军看见这些事迹，称赞了士兵。"你是真正的英雄，"他说。士兵听着将军的话，笑了。"我为祖国而战，为荣誉，不是为了称赞，"他回答。战后被人民接纳，他幸福地生活。'},
+    ]},
+    vocab:[
+      ['ambulāns','正在走着的（现在分词）'],['pugnāns','正在战斗的'],
+      ['legēns','正在读的'],['lēctus','被读了的（过去分词）'],
+      ['scriptus','被写了了的'],['factus','被做了的'],
+      ['audītus','被听到了的'],['acceptus','被接受的/受欢迎的'],
+      ['vulnerātus','受伤的'],['superō, -āre','战胜/超过'],
+      ['perrēgō, -ere','继续做'],['beātus, -a, -um','幸福的'],
+      ['fortis, -e','勇敢的'],['proelium, -ī','战斗（n.）'],
+      ['patria, -ae','祖国（f.）'],['honōs, honōris','荣誉（m.）'],
+      ['tamen','然而/但是'],
+    ],
+    grammar:[
+      {p:'现在分词（Participium Praesentis）',e:'表示"正在做……的"。变格同第三变格（-ns, -ntis）',ex:'amāNS → amāNTIS (正在爱的)\nmonĒNS → monēNTIS\nregĒNS → regentIS\naudĪNS → audientIS'},
+      {p:'过去分词（Participium Perfecti）',e:'表示"被做过了的"。与第一/第二变格形容词相同变格',ex:'amātUS / amātA / amātUM\nmonitUS (被提醒的) / rēctUS (被统治的) / audītUS (被听到的)'},
+      {p:'将来分词（Participium Futuri）',e:'表示"将要做……的"。-tūrus, -a, -um 变格',ex:'amātŪRUS (将要爱的) / amātŪRA / amātŪRUM\n相当于英语 "about to / going to"'},
+      {p:'分词的用法',e:'分词可作形容词或构成独立结构',ex:'Puer in hortō ambulāns\n→ 在花园里（正）走着的男孩\nLīvia rosās legēns\n→ 莉维亚（正）采着玫瑰'},
+    ],
+  },
+  { // 18
+    title:'Lectio XVIII — Ablātīvus Absolūtus', titleCN:'夺格独立结构',
+    basics:[
+      {who:'',la:'Urbe captā, mīlitēs dormīvērunt.',cn:'城市被攻占后，士兵们睡了。'},
+      {who:'',la:'Sōle oriente, ambulāre incipimus.',cn:'太阳升起时，我们开始散步。'},
+      {who:'',la:'Hīs verbīs dictīs, philosophus discessit.',cn:'说了这些话之后，哲学家离开了。'},
+      {who:'',la:'Cicerōne cōnsule, coniūrātiō Catilīnae dētecta est.',cn:'西塞罗执政时，喀提林阴谋被揭露了。'},
+    ],
+    applied:{title:'Rōma Conditur',lines:[
+      {who:'',la:'Rēgibus expulsīs, Rōmānī rem pūblicam creāvērunt. Duōbus cōnsulibus creātīs, populus līber erat. Hāc novā rē pūblicā, Rōma magna et clāra facta est. Multīs bellīs victīs, imperium Rōmānum crēvit. Tandem, imperiō Rōmānō lātē patentī, pāx Rōmāna appellāta est. "Pāx Rōmāna" erat tempus longum pācis et prosperitātis.',cn:'国王们被驱逐后，罗马人建立了共和国。两位执政官被选出后，人民自由了。有了这个新共和国，罗马变得伟大和著名。许多战争被战胜后，罗马帝国成长了。最终，当罗马帝国宽广地延伸开时，被称为"罗马和平"。罗马和平是一个和平与繁荣的长久时期。'},
+    ]},
+    vocab:[
+      ['expellō, -ere / expulī','驱逐'],['creō, -āre','创造/选举'],
+      ['vincō, -ere / vīcī','战胜/征服'],['crescō, -ere / crēvī','成长/增长'],
+      ['dētegō, -ere / dētēxī','揭露'],['appellō, -āre','称呼/命名'],
+      ['cōnsul, cōnsulis','执政官（m.）'],['coniūrātiō, -ōnis','阴谋（f.）'],
+      ['imperium, -ī','帝国/命令（n.）'],['lātē','宽广地'],
+      ['pateō, -ēre','延伸/打开'],['tempus, temporis','时间（n.）'],
+      ['prosperitās, -tātis','繁荣（f.）'],['līber, -era, -erum','自由的'],
+      ['tandem','终于'],['nox, noctis','夜晚（f.）'],
+    ],
+    grammar:[
+      {p:'夺格独立结构（Ablative Absolute）',e:'名词/代词和分词均在夺格，表示伴随情况。独立于主句',ex:'Urbe captā, … = "城市（被）攻占后"（时间）\nSōle oriente, … = "太阳升起时"（同时）\nMē duce, … = "在我的领导下"（条件）'},
+      {p:'没有分词的Ablative Absolute',e:'有时用两个名词或名词+形容词构成',ex:'Cicerōne cōnsule = "西塞罗（当）执政官时"\nMē invītō = "我不情愿（的情况下）"\nNātūrā magistrā = "以自然为师"'},
+      {p:'Ablative Absolute的翻译',e:'可译作时间、原因、条件、让步状语',ex:'His verbīs dictīs\n→ 说了这些话之后（时间）\nHostibus victīs\n→ 因为敌人被击败（原因）\nMē adiuvante\n→ 如果我帮忙（条件）'},
+    ],
+  },
+  { // 19
+    title:'Lectio XIX — Comparātīva et Superlatīva', titleCN:'比较级与最高级',
+    basics:[
+      {who:'',la:'Līvia est pulchrior quam Rosa.',cn:'莉维亚比罗莎更美丽。'},
+      {who:'',la:'Mārcus est altior amīcō suō.',cn:'马库斯比他的朋友更高。'},
+      {who:'',la:'Haec via est longissima omnium.',cn:'这条路是所有路中最长的。'},
+      {who:'',la:'Optimī discipulī maximam scientiam habent.',cn:'最好的学生们拥有最多的知识。'},
+    ],
+    applied:{title:'Quis Est Optimus?',lines:[
+      {who:'A:',la:'Quis est discipulus optimus in scholā?',cn:'谁是学校里最好的学生？'},
+      {who:'B:',la:'Mārcus est discipulus bonus, sed Līvia est melior.',cn:'马库斯是好学生，但莉维亚更好。'},
+      {who:'A:',la:'Estne Līvia sapientior Mārcō?',cn:'莉维亚比马库斯更智慧吗？'},
+      {who:'B:',la:'Ita, Līvia est omnium discipulōrum sapientissima. Ea est puella intellegentissima.',cn:'是的，莉维亚是所有学生中最智慧的。她是个非常聪明的女孩。'},
+      {who:'A:',la:'Quis est magister optimus?',cn:'谁是最好的老师？'},
+      {who:'B:',la:'Magister noster est doctissimus. Pulchrē docet et ā discipulīs amātur.',cn:'我们的老师最有学问。他教得很好，被学生们爱戴。'},
+    ]},
+    vocab:[
+      ['pulcher, pulchrior, pulcherrimus','美丽的/更美的/最美的'],
+      ['bonus, melior, optimus','好的/更好的/最好的'],
+      ['malus, pēior, pessimus','坏的/更坏的/最坏的'],
+      ['magnus, māior, maximus','大的/更大的/最大的'],
+      ['parvus, minor, minimus','小的/更小的/最小的'],
+      ['multus, plūs, plūrimus','多的/更多的/最多的'],
+      ['altus, -a, -um','高的'],['clārus, -a, -um','著名的/明亮的'],
+      ['doctus, -a, -um','博学的'],['intellegēns, -ntis','聪明的'],
+      ['quam','比'],['quam (+superl.)','尽可能……'],
+      ['pulchrē','美丽地（adv.）'],
+    ],
+    grammar:[
+      {p:'比较级的构成',e:'形容词词干 + -ior (m/f) / -ius (n) + 第二变格（类似第三变格）',ex:'clārUS → clārIOR (更著名的)\npulcher → pulchrIOR (更美丽的)\nsapiēns → sapientIOR (更有智慧的)\n规则：去掉属格结尾 + -ior'},
+      {p:'最高级的构成',e:'形容词词干 + -issimus, -a, -um',ex:'clārUS → clārISSIMUS\npulcher → pulcherrIMUS (注意拼写)\nsapiēns → sapientISSIMUS'},
+      {p:'不规则比较',e:'常用形容词有不规则形式，必须记忆：',ex:'bonus / melior / optimus\nmalus / pēior / pessimus\nmagnus / māior / maximus\nparvus / minor / minimus\nmultus / plūs / plūrimus'},
+      {p:'比较的两种表达',e:'① 比较对象用 quam + 同格 ② 比较对象用夺格',ex:'Līvia est pulchrior QUAM Rosa.\n→ 莉维亚比罗莎更美。\nLīvia est pulchrior ROSĀ.\n→ 莉维亚比罗莎更美。（夺格）'},
+    ],
+  },
+  { // 20
+    title:'Lectio XX — Numerī et Tempus', titleCN:'数字与时间表达',
+    basics:[
+      {who:'',la:'Ūnus, duo, trēs – Rōma aeterna est!',cn:'一、二、三——罗马永恒！'},
+      {who:'',la:'Prīmā hōrā ad scholam eō.',cn:'在第一小时去学校。'},
+      {who:'',la:'Quīnque librōs lēgī hōc annō.',cn:'今年我读了五本书。'},
+      {who:'',la:'Decem annōs in urbe habitāvī.',cn:'我在城市里住了十年。'},
+    ],
+    applied:{title:'Tempora Annī',lines:[
+      {who:'',la:'Annus in quattuor tempora dīviditur: vēr, aestās, autumnus, hiems. Vēr est pulchrum tempus. Tunc flōrēs aperiuntur et avēs cantant. Aestās est calida. In hortō ambulāmus et cibum levem edimus. Autumnus est tempus messionis. Frūctūs matūrī sunt et pulchrī. Hiems est frīgida, sed pulchra. Nix terram tegit. Hoc circulō temporum, tota vīta ruit et renovātur. "Tempus fugit," dīcunt Rōmānī. "Carpe diem!"',cn:'一年分为四个季节：春、夏、秋、冬。春天是美丽的季节。那时花朵开放，鸟儿歌唱。夏天是温暖的。我们在花园里散步并吃清淡的食物。秋天是收获的季节。果实成熟而美丽。冬天是寒冷的，但很美。雪覆盖了大地。在这个时间循环中，整个生命流逝又被更新。"时间飞逝，"罗马人说。"抓住今天！"'},
+    ]},
+    vocab:[
+      ['ūnus, -a, -um','一'],['duo, duae, duo','二'],
+      ['trēs, tria','三'],['quattuor','四'],
+      ['quīnque','五'],['sex','六'],['septem','七'],
+      ['octō','八'],['novem','九'],['decem','十'],
+      ['centum','百'],['mīlle','千'],
+      ['prīmus, -a, -um','第一'],['secundus, -a, -um','第二'],
+      ['tertius, -a, -um','第三'],['tempus, -oris','时间（n.）'],
+      ['annus, -ī','年（m.）'],['hiems, hiemis','冬天（f.）'],
+      ['vēr, vēris','春天（n.）'],['aestās, aestātis','夏天（f.）'],
+      ['autumnus, -ī','秋天（m.）'],['carpe diem','抓住今天'],
+      ['tempus fugit','时间飞逝'],
+    ],
+    grammar:[
+      {p:'基数词 1-10',e:'Ūnus (m/f/n: ūnus/ūna/ūnum); Duo (duo/duae/duo); Trēs (m/f/n: trēs/tria)',
+      ex:'Ūnus vir, ūna fēmina\nDuo virī, duae fēminae, duo verba\nTrēs virī, tria verba\n4-100 不变格：quattuor, quīnque, sex...'},
+      {p:'序数词',e:'prīmus / secundus / tertius / quārtus / quīntus / sextus / septimus / octāvus / nōnus / decimus',
+      ex:'prīma hōra (第一小时)\nsecundus annus (第二年)\ntertia lēx (第三条法律)'},
+      {p:'时间表达',e:'① 时间点用夺格 ② 持续期间用宾格',ex:'PRĪMĀ hōrā venit.\n→ 他在第一小时来了。（时间点）\nDECEM annōs habitāvī.\n→ 我住了十年。（持续时间）\nMULTŌS diēs labōrāvī.\n→ 我工作了多日。'},
+    ],
+  },
+];
+
+// ============================================================
+// STATE
+// ============================================================
+const SK='lat_study_v1';
+function getState(){
+  try{const r=localStorage.getItem(SK);if(r)return JSON.parse(r);}catch(e){}
+  return {startDate:'2026-05-04',daysPerLesson:2,timerDuration:25,completedLessons:[],studyDays:[],flashKnown:{}};
+}
+function saveState(){localStorage.setItem(SK,JSON.stringify(state));}
+let state=getState();
+function todayStr(){return new Date().toISOString().slice(0,10);}
+function getCurrentLesson(){
+  const diff=Math.round((new Date(todayStr())-new Date(state.startDate))/86400000);
+  return Math.max(0,Math.min(Math.floor(diff/state.daysPerLesson),COURSE_DATA.length-1));
+}
+function isDone(i){return state.completedLessons.includes(i);}
+function getTotalVocab(){let n=0;for(const c of COURSE_DATA)n+=c.vocab.length;return n;}
+function getLearnedVocab(){let n=0;for(let i=0;i<COURSE_DATA.length;i++)if(isDone(i))n+=COURSE_DATA[i].vocab.length;return n;}
+function getStreak(){let s=0;const d=new Date();while(true){const ds=d.toISOString().slice(0,10);if(state.studyDays.includes(ds)){s++;d.setDate(d.getDate()-1);}else break;}return s;}
+
+// ============================================================
+// RENDER
+// ============================================================
+function refreshAll(){
+  const cur=getCurrentLesson(),total=COURSE_DATA.length,done=state.completedLessons.length;
+  document.getElementById('progressFill').style.width=(done/total*100)+'%';
+  document.getElementById('headerDate').textContent=todayStr();
+  const ch=COURSE_DATA[cur];
+  document.getElementById('todayChapterLA').textContent=ch.title;
+  document.getElementById('todayChapterCN').textContent=ch.titleCN;
+  document.getElementById('todayMeta').textContent=`Lectio ${cur+1}/${total} · 完成 ${done}/${total}`;
+  document.getElementById('statDone').textContent=done;
+  document.getElementById('statVocab').textContent=getLearnedVocab();
+  document.getElementById('statStreak').textContent=getStreak();
+  document.getElementById('progressText').textContent=`第 ${done}/${total} 课`;
+  const dots=document.getElementById('progressDots');dots.innerHTML='';
+  for(let i=0;i<total;i++){const d=document.createElement('span');d.style.cssText=`width:14px;height:14px;border-radius:50%;display:inline-block;background:${isDone(i)?'var(--gold)':i===cur?'var(--accent)':'#e8e2da'}`;d.title=`Lectio ${i+1}`;dots.appendChild(d);}
+  renderStreak();renderChapters();renderStudy(cur);
+  for(const id of['flashChapter','quizChapter','listenChapter'])populateSelect(id,cur);
+}
+
+function renderStreak(){
+  const g=document.getElementById('streakGrid');g.innerHTML='';
+  const t=new Date();
+  for(let i=13;i>=0;i--){const d=new Date(t);d.setDate(d.getDate()-i);const ds=d.toISOString().slice(0,10);const e=document.createElement('div');e.className='streak-day';if(state.studyDays.includes(ds))e.classList.add('done');if(ds===todayStr())e.classList.add('today');e.textContent=d.getDate();g.appendChild(e);}
+}
+
+function renderChapters(){
+  const el=document.getElementById('chapterList'),cur=getCurrentLesson();el.innerHTML='';
+  for(let i=0;i<COURSE_DATA.length;i++){
+    const ch=COURSE_DATA[i],done=isDone(i);
+    const div=document.createElement('div');div.className='chapter-item';
+    const num=document.createElement('div');num.className='chapter-num '+(done?'done':i===cur?'current':'locked');num.textContent=i+1;div.appendChild(num);
+    const info=document.createElement('div');info.className='chapter-info';info.innerHTML=`<div class="title">${ch.title}</div><div class="sub">${ch.titleCN}</div>`;div.appendChild(info);
+    if(done){const t=document.createElement('span');t.style.cssText='font-size:.7rem;color:#2e7d32;background:#e8f5e9;padding:2px 8px;border-radius:4px';t.textContent='✅';div.appendChild(t);}
+    div.onclick=()=>{state.currentLesson=i;renderStudy(i);switchTab('study');};el.appendChild(div);
+  }
+}
+
+function populateSelect(id,selected){
+  const sel=document.getElementById(id);sel.innerHTML='';
+  for(let i=0;i<COURSE_DATA.length;i++){const o=document.createElement('option');o.value=i;o.textContent=`Lectio ${i+1}: ${COURSE_DATA[i].titleCN.slice(0,15)}`;if(i===selected)o.selected=true;sel.appendChild(o);}
+}
+
+function renderStudy(idx){
+  const ch=COURSE_DATA[idx];
+  document.getElementById('studyChapterTitle').textContent=`📝 ${ch.title}`;
+  const vb=document.getElementById('vocabTableBody');vb.innerHTML='';
+  document.getElementById('vocabCount').textContent=`${ch.vocab.length} 个`;
+  for(const [la,cn] of ch.vocab){
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td><span class="la">${la}</span> <button class="speaker-icon" onclick="speak('${la.replace(/'/g,"\\'").replace(/ā/,'a').replace(/ē/,'e').replace(/ī/,'i').replace(/ō/,'o').replace(/ū/,'u')}')">🔊</button></td><td class="cn">${cn}</td>`;
+    tr.cells[0].querySelector('.la').textContent=la;
+    tr.cells[0].querySelector('.speaker-icon').onclick=function(){speak(la);};
+    vb.appendChild(tr);
+  }
+  const bs=document.getElementById('basicSentences');bs.innerHTML='';
+  for(const b of ch.basics){
+    const d=document.createElement('div');d.className='basic-item';
+    const laClean=b.la.replace(/'/g,"\\'");
+    d.innerHTML=`<div class="la-line">${b.who?`<span style="color:var(--accent);font-weight:600">${b.who}</span> `:''}${b.la} <button class="speaker-icon" onclick="speak('${laClean}')">🔊</button></div><div class="cn">${b.cn}</div>`;
+    bs.appendChild(d);
+  }
+  const ar=document.getElementById('appliedReading');ar.innerHTML='';
+  ar.innerHTML=`<div style="font-size:.85rem;color:var(--text2);margin-bottom:6px">${ch.applied.title}</div>`;
+  for(const l of ch.applied.lines){
+    const d=document.createElement('div');d.className='dialogue-item';
+    const laClean=l.la.replace(/'/g,"\\'");
+    d.innerHTML=`<div class="speaker">${l.who}</div><div style="flex:1"><div class="bubble la-bubble">${l.la} <button class="speaker-icon" onclick="speak('${laClean}')">🔊</button></div><div class="bubble cn-bubble">${l.cn}</div></div>`;
+    ar.appendChild(d);
+  }
+  const gl=document.getElementById('grammarList');gl.innerHTML='';
+  for(const g of ch.grammar){
+    const [e1,e2]=g.ex.split('\n→ ');
+    const d=document.createElement('div');d.className='grammar-item';
+    d.innerHTML=`<div class="pattern">${g.p}</div><div class="explain">${g.e}</div><div class="example">${e1}</div><div class="example-cn">→ ${e2||''}</div>`;
+    gl.appendChild(d);
+  }
+}
+
+function switchStudyTab(name,btn){
+  document.querySelectorAll('.study-tabs .st').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.study-pane').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');document.getElementById('pane-'+name).classList.add('active');
+}
+
+function speakAllBasics(){
+  const ch=COURSE_DATA[getCurrentLesson()];const t=ch.basics.map(b=>b.la);speakChain(t);
+}
+function speakAllApplied(){
+  const ch=COURSE_DATA[getCurrentLesson()];const t=ch.applied.lines.map(l=>l.la);speakChain(t);
+}
+function speakChain(t){if(!t.length)return;let i=0;function n(){if(i<t.length)speak(t[i],()=>{i++;n();});}n();}
+
+// ============================================================
+// LISTENING
+// ============================================================
+let lQ=[],lI=0,lRep=false;
+function loadListening(){
+  const ci=parseInt(document.getElementById('listenChapter').value),ch=COURSE_DATA[ci];lQ=[];
+  for(const b of ch.basics)lQ.push({text:b.la,cn:b.cn,label:'基本'});
+  for(const l of ch.applied.lines)lQ.push({text:l.la,cn:l.cn,label:l.who||'阅读'});
+  lI=0;renderPlaylist();
+}
+function renderPlaylist(){
+  const el=document.getElementById('listenPlaylist');el.innerHTML='';
+  for(let i=0;i<lQ.length;i++){const it=lQ[i];const d=document.createElement('div');d.className='playlist-item'+(i===lI?' playing':'');d.innerHTML=`<span class="num">${i+1}</span><span><span class="text">${it.text}</span><span class="cn2">${it.cn}</span><button class="speaker-icon" onclick="playListenItem(${i})" style="margin-left:6px">🔊</button></span>`;d.onclick=()=>playListenItem(i);el.appendChild(d);}
+}
+function playListenItem(i){stopListen();lI=i;playCurListen();}
+function playCurListen(){
+  if(lI>=lQ.length)return;
+  const it=lQ[lI];renderPlaylist();speak(it.text,()=>{if(lRep){lI++;playCurListen();}else{lI++;if(lI<lQ.length)playCurListen();}});
+}
+function playListenAll(){if(!lQ.length)loadListening();stopListen();lI=0;playCurListen();}
+function stopListen(){speechSynthesis.cancel();}
+function toggleListenRepeat(){lRep=!lRep;document.getElementById('repeatBtn').textContent=lRep?'🔁 循环中':'🔁 单曲循环';}
+
+// ============================================================
+// FLASHCARDS
+// ============================================================
+let fQ=[],fI=0,fK=0,fU=0;
+function startFlash(){
+  const ci=parseInt(document.getElementById('flashChapter').value),md=document.getElementById('flashMode').value,ch=COURSE_DATA[ci];
+  fQ=ch.vocab.map(v=>({la:v[0],cn:v[1]}));
+  if(md==='cn2la')fQ=ch.vocab.map(v=>({la:v[0],cn:v[1],flip:true}));
+  if(md==='mix'){for(let i=fQ.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[fQ[i],fQ[j]]=[fQ[j],fQ[i]];}}
+  fI=0;fK=0;fU=0;showF();
+}
+function showF(){
+  if(fI>=fQ.length){
+    document.getElementById('flashContainer').innerHTML=`<div class="card text-center" style="padding:40px"><div style="font-size:2rem">🎉</div><div style="font-weight:600">All done!</div><div style="font-size:.85rem;color:var(--text2);margin-top:4px">✅ ${fK} · ❌ ${fU}</div><button class="btn btn-outline mt-8" onclick="startFlash()">再来</button></div>`;document.getElementById('flashProgress').textContent='0 / 0';return;
+  }
+  const it=fQ[fI],ft=it.flip?it.cn:it.la;
+  document.getElementById('flashContainer').innerHTML=`<div style="perspective:1000px;min-height:260px"><div class="flash-card" id="fc" onclick="flipF()"><div class="flash-face flash-front"><div class="la" style="font-size:2rem;margin-bottom:8px">${ft}</div><div class="hint">点击翻转 <button class="speaker-icon" onclick="event.stopPropagation();speak('${it.la.replace(/'/g,"\\'")}')" style="font-size:1.2rem">🔊</button></div></div><div class="flash-face flash-back"><div class="la" style="font-size:1.8rem;margin-bottom:4px">${it.la}</div><div class="cn" style="font-size:1.1rem;color:var(--text2)">${it.cn}</div></div></div></div>`;
+  document.getElementById('flashProgress').textContent=`${fI+1}/${fQ.length}`;
+}
+function flipF(){document.getElementById('fc').classList.toggle('flipped');}
+function flashAnswer(s){
+  if(fI>=fQ.length)return;if(s===1)fK++;else if(s===0)fU++;
+  if(!state.studyDays.includes(todayStr()))state.studyDays.push(todayStr());saveState();fI++;showF();
+}
+
+// ============================================================
+// QUIZ
+// ============================================================
+let qQ=[],qI=0,qC=0,qA=false;
+function startQuiz(){
+  const ci=parseInt(document.getElementById('quizChapter').value),tp=document.getElementById('quizType').value,ch=COURSE_DATA[ci];qQ=[];
+  for(const v of ch.vocab){
+    if(tp==='meaning')qQ.push({q:v[0],a:v[1],dist:getD(v[1],3)});
+    else qQ.push({q:v[1],a:v[0],dist:getDL(v[0],3)});
+  }
+  for(let i=qQ.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[qQ[i],qQ[j]]=[qQ[j],qQ[i]];}
+  qI=0;qC=0;qA=false;document.getElementById('quizRestart').style.display='none';showQ();
+}
+function getD(c,n){const p=[];for(const ch of COURSE_DATA)for(const v of ch.vocab)if(v[1]!==c&&!p.includes(v[1]))p.push(v[1]);return p.sort(()=>Math.random()-.5).slice(0,n);}
+function getDL(c,n){const p=[];for(const ch of COURSE_DATA)for(const v of ch.vocab)if(v[0]!==c&&!p.includes(v[0]))p.push(v[0]);return p.sort(()=>Math.random()-.5).slice(0,n);}
+function showQ(){
+  if(qI>=qQ.length){document.getElementById('quizContainer').innerHTML=`<div class="text-center" style="padding:24px"><div style="font-size:2rem">🏆</div><div style="font-weight:600;margin:8px 0">${qC}/${qQ.length}</div><button class="btn btn-outline mt-8" onclick="startQuiz()">再做一遍</button></div>`;return;}
+  qA=false;const it=qQ[qI];const opts=[it.a,...it.dist].sort(()=>Math.random()-.5);
+  document.getElementById('quizQNum').textContent=`${qI+1}/${qQ.length}`;
+  document.getElementById('quizQuestion').textContent=it.q;
+  const ae=document.getElementById('quizAnswers');ae.innerHTML='';
+  for(const o of opts){const b=document.createElement('button');b.textContent=o;b.onclick=()=>checkA(b,o===it.a);ae.appendChild(b);}
+  document.getElementById('quizResult').textContent='';document.getElementById('quizScore').textContent=`✅ ${qC}/${qI}`;
+}
+function checkA(b,c){
+  if(qA)return;qA=true;
+  const r=document.getElementById('quizResult');
+  if(c){qC++;b.classList.add('correct');r.textContent='✓ Recte!';r.style.background='#e8f5e9';r.style.color='#2e7d32';}
+  else{b.classList.add('wrong');document.querySelectorAll('#quizAnswers button').forEach(bb=>{if(bb.textContent===qQ[qI].a)bb.classList.add('correct');});r.textContent=`✗ ${qQ[qI].a}`;r.style.background='#fce4ec';r.style.color='#c62828';}
+  document.getElementById('quizScore').textContent=`✅ ${qC}/${qI+1}`;
+  if(!state.studyDays.includes(todayStr()))state.studyDays.push(todayStr());saveState();
+  setTimeout(()=>{qI++;showQ();},1200);
+}
+function speakQuiz(){if(qI<qQ.length)speak(qQ[qI].q);}
+
+// ============================================================
+// POMODORO
+// ============================================================
+let tInt=null,tRm=25*60,tRun=false;
+function upT(){const m=Math.floor(tRm/60),s=tRm%60;document.getElementById('timerDisplay').textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;}
+function startTimer(){if(tRun)return;tRun=true;tRm=parseInt(document.getElementById('timerDuration').value)*60;upT();tInt=setInterval(()=>{tRm--;upT();if(tRm<=0){clearInterval(tInt);tRun=false;showNotify('⌛ Tempus exiit!');}},1000);}
+function pauseTimer(){clearInterval(tInt);tRun=false;}
+function resetTimer(){clearInterval(tInt);tRun=false;tRm=parseInt(document.getElementById('timerDuration').value)*60;upT();}
+
+// ============================================================
+// SETTINGS / TABS
+// ============================================================
+function saveSettings(){state.startDate=document.getElementById('startDate').value;state.daysPerLesson=parseInt(document.getElementById('daysPerLesson').value);state.timerDuration=parseInt(document.getElementById('timerDuration').value);if(!tRun)tRm=state.timerDuration*60;upT();saveState();}
+function loadSettings(){document.getElementById('startDate').value=state.startDate;document.getElementById('daysPerLesson').value=state.daysPerLesson;document.getElementById('timerDuration').value=state.timerDuration;tRm=state.timerDuration*60;upT();}
+function resetAll(){if(confirm('清除所有数据？')){localStorage.removeItem(SK);state=getState();refreshAll();loadSettings();showNotify('Reset!');}}
+function markChapterDone(){const cur=getCurrentLesson();if(isDone(cur)){showNotify('Already done ✅');return;}state.completedLessons.push(cur);if(!state.studyDays.includes(todayStr()))state.studyDays.push(todayStr());saveState();refreshAll();showNotify(`🎉 ${COURSE_DATA[cur].title} completa!`);}
+function switchTab(n){document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===n));document.querySelectorAll('.section').forEach(s=>s.classList.toggle('active',s.id==='tab-'+n));if(n==='dashboard'||n==='chapters')refreshAll();if(n==='flash')startFlash();if(n==='quiz')startQuiz();if(n==='listen')loadListening();if(n==='study')renderStudy(getCurrentLesson());}
+document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>switchTab(t.dataset.tab)));
+let nt2=null;
+function showNotify(m){const e=document.getElementById('notification');e.textContent=m;e.classList.add('show');clearTimeout(nt2);nt2=setTimeout(()=>e.classList.remove('show'),3000);}
+document.addEventListener('DOMContentLoaded',()=>{loadSettings();refreshAll();});
+</script>
+</body>
+</html>
