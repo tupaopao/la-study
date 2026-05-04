@@ -327,22 +327,34 @@ main{padding:16px;max-width:720px;margin:0 auto}
 // ============================================================
 // SPEECH — Latin uses lang='la'
 // ============================================================
+var _speaking = false;
+
 function speak(text, cb){
-  if(typeof window==='undefined'||!window.speechSynthesis){ if(cb) setTimeout(cb,100); return; }
+  if(typeof window==='undefined'||!window.speechSynthesis||!window.speechSynthesis.speak){
+    showNotify('\u26a0\ufe0f \u5f53\u524d\u6d4f\u89c8\u5668\u4e0d\u652f\u6301\u8bed\u97f3\u6717\u8bfb');
+    if(cb) setTimeout(cb,20); return;
+  }
   try{
-    window.speechSynthesis.cancel();
+    var ua = navigator.userAgent;
+    if(ua.indexOf('MicroMessenger')>=0 && ua.indexOf('Android')>=0 && !window.speechSynthesis.getVoices().length){
+      showNotify('\u26a0\ufe0f \u5b89\u5353\u5fae\u4fe1\u5185\u6838\u4e0d\u652f\u6301\u8bed\u97f3\uff0c\u8bf7\u7528\u624b\u673a\u6d4f\u89c8\u5668\u6253\u5f00');
+      if(cb) setTimeout(cb,20); return;
+    }
+  }catch(e){}
+  try{
+    // iOS fix: do NOT cancel - use setTimeout gap instead
     var u = new SpeechSynthesisUtterance(text);
     u.lang = 'la'; u.rate = 0.8; u.pitch = 0.9; u.volume = 0.9;
     try{
       var voices = window.speechSynthesis.getVoices();
-      var lv = null;
-      for(var i=0;i<voices.length;i++){ if(voices[i].lang.indexOf('la')===0){ lv=voices[i]; break; } }
-      if(lv) u.voice = lv;
+      for(var i=0;i<voices.length;i++){ if(voices[i].lang.indexOf('la')===0){ u.voice=voices[i]; break; } }
     }catch(e){}
-    u.onend = function(){ if(cb) cb(); };
-    u.onerror = function(){ if(cb) setTimeout(cb,100); };
+    var called = false;
+    u.onend = function(){ if(!called){ called=true; _speaking=false; if(cb) setTimeout(cb,50); } };
+    u.onerror = function(){ if(!called){ called=true; _speaking=false; if(cb) setTimeout(cb,80); } };
+    _speaking = true;
     window.speechSynthesis.speak(u);
-  }catch(e){ if(cb) setTimeout(cb,100); }
+  }catch(e){ _speaking=false; if(cb) setTimeout(cb,80); }
 }
 
 // ============================================================
@@ -1073,7 +1085,17 @@ function speakAllBasics(){
 function speakAllApplied(){
   const ch=COURSE_DATA[getCurrentLesson()];const t=ch.applied.lines.map(l=>l.la);speakChain(t);
 }
-function speakChain(t){if(!t.length)return;let i=0;function n(){if(i<t.length)speak(t[i],()=>{i++;n();});}n();}
+function speakChain(t){
+  if(!t||!t.length) return;
+  try{ window.speechSynthesis.cancel(); }catch(e){}
+  var idx = 0;
+  function next(){
+    if(idx < t.length){
+      speak(t[idx], function(){ idx++; setTimeout(next, 120); });
+    }
+  }
+  setTimeout(next, 50);
+}
 
 // ============================================================
 // LISTENING
