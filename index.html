@@ -326,30 +326,19 @@ main{padding:16px;max-width:720px;margin:0 auto}
 <script>
 // ============================================================
 // SPEECH — Latin uses lang='la'
+// Architecture: generation-gated. _sqGen bumps on stop/chain-start.
+// All async callbacks snapshot _sqGen and bail if it changed.
 // ============================================================
-// Speech queue — single-line-at-a-time
-var _sq = [];
-var _sqBusy = false;
-var _sqGen = 0;  // generation counter to cancel pending chains
+var _sqGen = 0;
 
+// Speak a single text with optional callback. Used by individual 🔈 buttons.
+// Generation-gated: if stopSpeech() is called mid-utterance, callback is dropped.
 function speak(text, cb){
-  // Check TTS availability
   if(typeof speechSynthesis==='undefined'||!speechSynthesis.speak){
     if(cb) setTimeout(cb,20); return;
   }
-  _sq.push({t:text, c:cb});
-  _sqRun();
-}
-
-function _sqRun(){
-  if(_sqBusy || _sq.length===0) return;
-  _sqBusy = true;
-  var item = _sq.shift();
-  
-  try{ window.speechSynthesis.cancel(); }catch(e){}
-  
-  var g = ++_sqGen;
-  var utter = new SpeechSynthesisUtterance(item.t);
+  var g = _sqGen;
+  var utter = new SpeechSynthesisUtterance(text);
   utter.lang = 'la';
   utter.rate = 0.8;
   utter.pitch = 0.9;
@@ -360,44 +349,60 @@ function _sqRun(){
   }catch(e){}
   
   var done = false;
-  var fin = function(){
+  utter.onend = function(){
     if(done) return; done = true;
-    _sqBusy = false;
-    if(item.c) setTimeout(function(){ item.c(); _sqRun(); }, 30);
-    else _sqRun();
+    if(g !== _sqGen) return;
+    if(cb) setTimeout(cb, 20);
   };
-  
-  utter.onend = fin;
-  utter.onerror = function(){ setTimeout(fin, 50); };
-  
+  utter.onerror = function(){
+    if(done) return; done = true;
+    if(g !== _sqGen) return;
+    if(cb) setTimeout(cb, 50);
+  };
   window.speechSynthesis.speak(utter);
 }
 
+// speakChain: plays an array of texts sequentially.
+// Generation-gated: bumping _sqGen (via stopSpeech) kills the chain.
 function speakChain(texts){
   if(!texts||!texts.length) return;
-  var g = ++_sqGen;
-  _sq = [];  // clear queue
+  ++_sqGen;
   try{ window.speechSynthesis.cancel(); }catch(e){}
-  _sqBusy = false;
   
+  var g = _sqGen;
   var idx = 0;
   function next(){
     if(g !== _sqGen) return;
-    if(idx < texts.length){
-      speak(texts[idx], function(){
-        if(g !== _sqGen) return;
-        idx++;
-        setTimeout(next, 80);
-      });
-    }
+    if(idx >= texts.length) return;
+    var text = texts[idx];
+    idx++;
+    var utter = new SpeechSynthesisUtterance(text);
+    utter.lang = 'la';
+    utter.rate = 0.8;
+    utter.pitch = 0.9;
+    utter.volume = 0.9;
+    try{
+      var voices = speechSynthesis.getVoices();
+      for(var i=0;i<voices.length;i++){ if(voices[i].lang.indexOf('la')===0){ utter.voice=voices[i]; break; } }
+    }catch(e){}
+    var done = false;
+    utter.onend = function(){
+      if(done) return; done = true;
+      if(g !== _sqGen) return;
+      setTimeout(next, 120);
+    };
+    utter.onerror = function(){
+      if(done) return; done = true;
+      if(g !== _sqGen) return;
+      setTimeout(next, 50);
+    };
+    window.speechSynthesis.speak(utter);
   }
-  setTimeout(next, 30);
+  setTimeout(next, 50);
 }
 
 function stopSpeech(){
   ++_sqGen;
-  _sq = [];
-  _sqBusy = false;
   try{ window.speechSynthesis.cancel(); }catch(e){}
 }
 
@@ -1124,46 +1129,53 @@ function switchStudyTab(name,btn){
 }
 
 function speakAllBasics(){
+  stopSpeech();
   const ch=COURSE_DATA[getCurrentLesson()];const t=ch.basics.map(b=>b.la);speakChain(t);
 }
 function speakAllApplied(){
+  stopSpeech();
   const ch=COURSE_DATA[getCurrentLesson()];const t=ch.applied.lines.map(l=>l.la);speakChain(t);
-}
-function speakChain(t){
-  if(!t||!t.length) return;
-  window._speakChainId = (window._speakChainId||0) + 1;
-  var myId = window._speakChainId;
-  var idx = 0;
-  function next(){
-    if(myId !== window._speakChainId) return;
-    if(idx < t.length){
-      speak(t[idx], function(){ idx++; if(myId === window._speakChainId) setTimeout(next, 120); });
-    }
-  }
-  setTimeout(next, 40);
 }
 
 // ============================================================
-// LISTENING
+// LISTENING — generation-gated chain like speakChain
 // ============================================================
-let lQ=[],lI=0,lRep=false;
+let lQ=[],lI=0,lRep=false,lPlaying=false;
 function loadListening(){
   const ci=parseInt(document.getElementById('listenChapter').value),ch=COURSE_DATA[ci];lQ=[];
   for(const b of ch.basics)lQ.push({text:b.la,cn:b.cn,label:'基本'});
   for(const l of ch.applied.lines)lQ.push({text:l.la,cn:l.cn,label:l.who||'阅读'});
-  lI=0;renderPlaylist();
+  lI=0; lPlaying=false; renderPlaylist();
 }
 function renderPlaylist(){
   const el=document.getElementById('listenPlaylist');el.innerHTML='';
   for(let i=0;i<lQ.length;i++){const it=lQ[i];const d=document.createElement('div');d.className='playlist-item'+(i===lI?' playing':'');d.innerHTML=`<span class="num">${i+1}</span><span><span class="text">${it.text}</span><span class="cn2">${it.cn}</span><button class="speaker-icon" onclick="playListenItem(${i})" style="margin-left:6px">🔊</button></span>`;d.onclick=()=>playListenItem(i);el.appendChild(d);}
 }
-function playListenItem(i){stopListen();lI=i;playCurListen();}
-function playCurListen(){
-  if(lI>=lQ.length)return;
-  const it=lQ[lI];renderPlaylist();speak(it.text,()=>{if(lRep){lI++;playCurListen();}else{lI++;if(lI<lQ.length)playCurListen();}});
+function playListenItem(i){stopListen();lI=i;lPlaying=true;_playListenChain();}
+function _playListenChain(){
+  if(!lPlaying) return;
+  if(lI>=lQ.length){ lPlaying=false; return; }
+  var it=lQ[lI]; renderPlaylist();
+  var utter = new SpeechSynthesisUtterance(it.text);
+  utter.lang = 'la'; utter.rate = 0.8; utter.pitch = 0.9; utter.volume = 0.9;
+  try{ var voices=speechSynthesis.getVoices(); for(var i=0;i<voices.length;i++){ if(voices[i].lang.indexOf('la')===0){ utter.voice=voices[i]; break; } } }catch(e){}
+  var g = _sqGen;
+  var done = false;
+  utter.onend = function(){
+    if(done) return; done = true;
+    if(!lPlaying || g !== _sqGen) return;
+    if(lRep){ setTimeout(function(){ _playListenChain(); }, 200); }
+    else { lI++; if(lI<lQ.length){ setTimeout(function(){ _playListenChain(); }, 120); } else { lPlaying=false; } }
+  };
+  utter.onerror = function(){
+    if(done) return; done = true;
+    if(!lPlaying || g !== _sqGen) return;
+    lI++; if(lI<lQ.length){ setTimeout(function(){ _playListenChain(); }, 120); } else { lPlaying=false; }
+  };
+  window.speechSynthesis.speak(utter);
 }
-function playListenAll(){if(!lQ.length)loadListening();stopListen();lI=0;playCurListen();}
-function stopListen(){ stopSpeech(); }
+function playListenAll(){if(!lQ.length)loadListening();stopListen();lI=0;lPlaying=true;_playListenChain();}
+function stopListen(){ lPlaying=false; stopSpeech(); }
 function toggleListenRepeat(){lRep=!lRep;document.getElementById('repeatBtn').textContent=lRep?'🔁 循环中':'🔁 单曲循环';}
 
 // ============================================================
