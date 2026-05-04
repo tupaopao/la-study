@@ -328,16 +328,21 @@ main{padding:16px;max-width:720px;margin:0 auto}
 // SPEECH — Latin uses lang='la'
 // ============================================================
 function speak(text, cb){
-  if(!window.speechSynthesis) return;
-  window.speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(text);
-  u.lang = 'la'; u.rate = 0.8; u.pitch = 0.9; u.volume = 1;
-  const voices = speechSynthesis.getVoices();
-  // Prefer any Latin voice, else use default
-  const lv = voices.find(v => v.lang.startsWith('la'));
-  if(lv) u.voice = lv;
-  u.onend = ()=>{ if(cb) cb(); };
-  speechSynthesis.speak(u);
+  if(typeof window==='undefined'||!window.speechSynthesis){ if(cb) setTimeout(cb,100); return; }
+  try{
+    window.speechSynthesis.cancel();
+    var u = new SpeechSynthesisUtterance(text);
+    u.lang = 'la'; u.rate = 0.8; u.pitch = 0.9; u.volume = 0.9;
+    try{
+      var voices = window.speechSynthesis.getVoices();
+      var lv = null;
+      for(var i=0;i<voices.length;i++){ if(voices[i].lang.indexOf('la')===0){ lv=voices[i]; break; } }
+      if(lv) u.voice = lv;
+    }catch(e){}
+    u.onend = function(){ if(cb) cb(); };
+    u.onerror = function(){ if(cb) setTimeout(cb,100); };
+    window.speechSynthesis.speak(u);
+  }catch(e){ if(cb) setTimeout(cb,100); }
 }
 
 // ============================================================
@@ -434,7 +439,7 @@ const COURSE_DATA = [
     ],
     grammar:[
       {p:'第二变格法（阳性）',e:'以 -us / -er 结尾的阳性名词：',ex:'主格: dominUS / dominĪ\n属格: dominĪ / dominŌRUM\n与格: dominŌ / dominĪS\n宾格: dominUM / dominŌS\n夺格: dominŌ / dominĪS\n（puer/ager 型的夺格同样为 -ō）'},
-      {p:'第二变位动词（-ēre）',e:'第二变位动词现在时：',ex:'videŌ / videS / videT\nvidēMUS / vidēTIS / videNT\n'策':'moneŌ同样变化'},
+      {p:'第二变位动词（-ēre）',e:'第二变位动词现在时：',ex:'videŌ / videS / videT\nvidēMUS / vidēTIS / videNT\nmoneŌ / monĒS / monET（moneō同样变化）'},
       {p:'中性名词（第二变格）',e:'以 -um 结尾的中性名词，主宾格相同（复数 -a）',ex:'bellUM（战争）/ bellA\ndonUM（礼物）/ donA\nverbUM（词）/ verbA'},
       {p:'所有格（属格）表示所属',e:'用属格表示"……的"',ex:'Fīlius dominī\n→ 主人的儿子\nAmīcus meī puerī\n→ 我的男孩的朋友'},
     ],
@@ -1170,10 +1175,10 @@ function loadSettings(){document.getElementById('startDate').value=state.startDa
 function resetAll(){if(confirm('清除所有数据？')){localStorage.removeItem(SK);state=getState();refreshAll();loadSettings();showNotify('Reset!');}}
 function markChapterDone(){const cur=getCurrentLesson();if(isDone(cur)){showNotify('Already done ✅');return;}state.completedLessons.push(cur);if(!state.studyDays.includes(todayStr()))state.studyDays.push(todayStr());saveState();refreshAll();showNotify(`🎉 ${COURSE_DATA[cur].title} completa!`);}
 function switchTab(n){document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===n));document.querySelectorAll('.section').forEach(s=>s.classList.toggle('active',s.id==='tab-'+n));if(n==='dashboard'||n==='chapters')refreshAll();if(n==='flash')startFlash();if(n==='quiz')startQuiz();if(n==='listen')loadListening();if(n==='study')renderStudy(getCurrentLesson());}
-document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>switchTab(t.dataset.tab)));
+document.querySelectorAll('.tab').forEach(function(t){ t.addEventListener('click',function(){ switchTab(t.dataset.tab); }); });
 let nt2=null;
 function showNotify(m){const e=document.getElementById('notification');e.textContent=m;e.classList.add('show');clearTimeout(nt2);nt2=setTimeout(()=>e.classList.remove('show'),3000);}
-document.addEventListener('DOMContentLoaded',()=>{loadSettings();refreshAll();});
+document.addEventListener('DOMContentLoaded',function(){ loadSettings(); refreshAll(); try{ if(window.speechSynthesis){ window.speechSynthesis.getVoices(); var d=new SpeechSynthesisUtterance('');d.volume=0;window.speechSynthesis.speak(d);window.speechSynthesis.cancel(); } }catch(e){} });
 </script>
 </body>
 </html>
