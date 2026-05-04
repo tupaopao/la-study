@@ -342,18 +342,19 @@ function speak(text, cb){
     }
   }catch(e){}
   try{
-    // iOS fix: do NOT cancel - use setTimeout gap instead
-    var u = new SpeechSynthesisUtterance(text);
-    u.lang = 'la'; u.rate = 0.8; u.pitch = 0.9; u.volume = 0.9;
+    var utter = new SpeechSynthesisUtterance(text);
+    utter.lang = 'la'; utter.rate = 0.8; utter.pitch = 0.9; utter.volume = 0.9;
     try{
       var voices = window.speechSynthesis.getVoices();
-      for(var i=0;i<voices.length;i++){ if(voices[i].lang.indexOf('la')===0){ u.voice=voices[i]; break; } }
+      for(var i=0;i<voices.length;i++){ if(voices[i].lang.indexOf('la')===0){ utter.voice=voices[i]; break; } }
     }catch(e){}
     var called = false;
-    u.onend = function(){ if(!called){ called=true; _speaking=false; if(cb) setTimeout(cb,50); } };
-    u.onerror = function(){ if(!called){ called=true; _speaking=false; if(cb) setTimeout(cb,80); } };
+    utter.onend = function(){ if(!called){ called=true; _speaking=false; if(cb) setTimeout(cb,50); } };
+    utter.onerror = function(){ if(!called){ called=true; _speaking=false; if(cb) setTimeout(cb,80); } };
+    // Cancel previous speech, then speak after brief delay (iOS fix)
+    try{ window.speechSynthesis.cancel(); }catch(e){}
     _speaking = true;
-    window.speechSynthesis.speak(u);
+    setTimeout(function(){ try{ window.speechSynthesis.speak(utter); }catch(e){ _speaking=false; if(cb) setTimeout(cb,80); } }, 60);
   }catch(e){ _speaking=false; if(cb) setTimeout(cb,80); }
 }
 
