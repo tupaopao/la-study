@@ -327,45 +327,78 @@ main{padding:16px;max-width:720px;margin:0 auto}
 // ============================================================
 // SPEECH — Latin uses lang='la'
 // ============================================================
-var _speaking = false;
+// Speech queue — single-line-at-a-time
+var _sq = [];
+var _sqBusy = false;
+var _sqGen = 0;  // generation counter to cancel pending chains
 
 function speak(text, cb){
-  if(typeof window==='undefined'||!window.speechSynthesis||!window.speechSynthesis.speak){
-    showNotify('\u26a0\ufe0f \u5f53\u524d\u6d4f\u89c8\u5668\u4e0d\u652f\u6301\u8bed\u97f3\u6717\u8bfb');
+  // Check TTS availability
+  if(typeof speechSynthesis==='undefined'||!speechSynthesis.speak){
     if(cb) setTimeout(cb,20); return;
   }
+  _sq.push({t:text, c:cb});
+  _sqRun();
+}
+
+function _sqRun(){
+  if(_sqBusy || _sq.length===0) return;
+  _sqBusy = true;
+  var item = _sq.shift();
+  
+  try{ window.speechSynthesis.cancel(); }catch(e){}
+  
+  var g = ++_sqGen;
+  var utter = new SpeechSynthesisUtterance(item.t);
+  utter.lang = 'la';
+  utter.rate = 0.8;
+  utter.pitch = 0.9;
+  utter.volume = 0.9;
   try{
-    var ua = navigator.userAgent;
-    if(ua.indexOf('MicroMessenger')>=0 && ua.indexOf('Android')>=0 && !window.speechSynthesis.getVoices().length){
-      showNotify('\u26a0\ufe0f \u5b89\u5353\u5fae\u4fe1\u5185\u6838\u4e0d\u652f\u6301\u8bed\u97f3\uff0c\u8bf7\u7528\u624b\u673a\u6d4f\u89c8\u5668\u6253\u5f00');
-      if(cb) setTimeout(cb,20); return;
-    }
+    var voices = speechSynthesis.getVoices();
+    for(var i=0;i<voices.length;i++){ if(voices[i].lang.indexOf('la')===0){ utter.voice=voices[i]; break; } }
   }catch(e){}
-  try{
-    var utter = new SpeechSynthesisUtterance(text);
-    utter.lang = 'la'; utter.rate = 0.8; utter.pitch = 0.9; utter.volume = 0.9;
-    try{
-      var voices = window.speechSynthesis.getVoices();
-      for(var i=0;i<voices.length;i++){ if(voices[i].lang.indexOf('la')===0){ utter.voice=voices[i]; break; } }
-    }catch(e){}
-    // Global speak ID prevents stale onend from cancelled utterances (iOS fix)
-    window._speakId = (window._speakId||0) + 1;
-    var myId = window._speakId;
-    utter.onend = function(){
-      if(myId !== window._speakId){ _speaking=false; return; }  // stale callback
-      _speaking=false; if(cb) setTimeout(cb,50);
-    };
-    utter.onerror = function(){
-      if(myId !== window._speakId){ _speaking=false; return; }  // stale callback
-      _speaking=false; if(cb) setTimeout(cb,80);
-    };
-    // Only cancel if something is currently playing
-    var needCancel = _speaking;
-    if(needCancel){ try{ window.speechSynthesis.cancel(); }catch(e){} }
-    _speaking = true
-    var d = needCancel ? 80 : 20;
-    setTimeout(function(){ try{ window.speechSynthesis.speak(utter); }catch(e){ _speaking=false; if(cb) setTimeout(cb,80); } }, d);
-  }catch(e){ _speaking=false; if(cb) setTimeout(cb,80); }
+  
+  var done = false;
+  var fin = function(){
+    if(done) return; done = true;
+    _sqBusy = false;
+    if(item.c) setTimeout(function(){ item.c(); _sqRun(); }, 30);
+    else _sqRun();
+  };
+  
+  utter.onend = fin;
+  utter.onerror = function(){ setTimeout(fin, 50); };
+  
+  window.speechSynthesis.speak(utter);
+}
+
+function speakChain(texts){
+  if(!texts||!texts.length) return;
+  var g = ++_sqGen;
+  _sq = [];  // clear queue
+  try{ window.speechSynthesis.cancel(); }catch(e){}
+  _sqBusy = false;
+  
+  var idx = 0;
+  function next(){
+    if(g !== _sqGen) return;
+    if(idx < texts.length){
+      speak(texts[idx], function(){
+        if(g !== _sqGen) return;
+        idx++;
+        setTimeout(next, 80);
+      });
+    }
+  }
+  setTimeout(next, 30);
+}
+
+function stopSpeech(){
+  ++_sqGen;
+  _sq = [];
+  _sqBusy = false;
+  try{ window.speechSynthesis.cancel(); }catch(e){}
 }
 
 // ============================================================
@@ -1130,7 +1163,7 @@ function playCurListen(){
   const it=lQ[lI];renderPlaylist();speak(it.text,()=>{if(lRep){lI++;playCurListen();}else{lI++;if(lI<lQ.length)playCurListen();}});
 }
 function playListenAll(){if(!lQ.length)loadListening();stopListen();lI=0;playCurListen();}
-function stopListen(){speechSynthesis.cancel();}
+function stopListen(){ stopSpeech(); }
 function toggleListenRepeat(){lRep=!lRep;document.getElementById('repeatBtn').textContent=lRep?'🔁 循环中':'🔁 单曲循环';}
 
 // ============================================================
