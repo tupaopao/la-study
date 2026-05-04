@@ -1197,7 +1197,19 @@ function saveSettings(){state.startDate=document.getElementById('startDate').val
 function loadSettings(){document.getElementById('startDate').value=state.startDate;document.getElementById('daysPerLesson').value=state.daysPerLesson;document.getElementById('timerDuration').value=state.timerDuration;tRm=state.timerDuration*60;upT();}
 function resetAll(){if(confirm('清除所有数据？')){localStorage.removeItem(SK);state=getState();refreshAll();loadSettings();showNotify('Reset!');}}
 function markChapterDone(){const cur=getCurrentLesson();if(isDone(cur)){showNotify('Already done ✅');return;}state.completedLessons.push(cur);if(!state.studyDays.includes(todayStr()))state.studyDays.push(todayStr());saveState();refreshAll();showNotify(`🎉 ${COURSE_DATA[cur].title} completa!`);}
-function switchTab(n){document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===n));document.querySelectorAll('.section').forEach(s=>s.classList.toggle('active',s.id==='tab-'+n));if(n==='dashboard'||n==='chapters')refreshAll();if(n==='flash')startFlash();if(n==='quiz')startQuiz();if(n==='listen')loadListening();if(n==='study')renderStudy(getCurrentLesson());}
+function switchTab(n){
+  try{
+    document.querySelectorAll('.tab').forEach(function(t){ t.classList.toggle('active',t.dataset.tab===n); });
+    document.querySelectorAll('.section').forEach(function(s){ s.classList.toggle('active',s.id==='tab-'+n); });
+    if(n==='dashboard'||n==='chapters'){ try{ refreshAll(); }catch(e){ showNotify('\u9875\u9762\u5237\u65b0\u5931\u8d25'); } }
+    if(n==='flash'){ try{ startFlash(); }catch(e){} }
+    if(n==='quiz'){ try{ startQuiz(); }catch(e){} }
+    if(n==='listen'){ try{ loadListening(); }catch(e){} }
+    if(n==='study'){ try{ renderStudy(getCurrentLesson()); }catch(e){} }
+  }catch(e){
+    showNotify('\u26a0\ufe0f \u9875\u9762\u5207\u6362\u5931\u8d25');
+  }
+}
 document.querySelectorAll('.tab').forEach(function(t){ t.addEventListener('click',function(){ switchTab(t.dataset.tab); }); });
 let nt2=null;
 function showNotify(m){const e=document.getElementById('notification');e.textContent=m;e.classList.add('show');clearTimeout(nt2);nt2=setTimeout(()=>e.classList.remove('show'),3000);}
